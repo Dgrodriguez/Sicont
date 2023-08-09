@@ -1,0 +1,15 @@
+{
+    "name": "vivadevelop/proyecto_1",
+    "description": "proyecto administrativo para la gestión de procesos de la empresa viva",
+    "type": "project",
+    "require": {
+        "spipu/html2pdf": "dev-master"
+    },
+    "license": "gnu",
+    "authors": [
+        {
+            "name": "analista ti"
+        }
+    ],
+    "minimum-stability": "dev"
+}

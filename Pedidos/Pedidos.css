@@ -1,0 +1,115 @@
+.error {
+  border: 1px solid red;
+}
+
+.montoerror{
+  color: red;
+}
+
+.swal2-popup {
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.ul-overlay {
+  position: absolute;
+  z-index: 9999;
+}
+
+.ul-overlay li:hover {
+  background-color: #009246;
+  color: white;
+}
+.titulo_modal{
+  font-weight: bold;
+  font-size: 16px;
+  color: #009246;
+}
+
+.btn-success{
+  background-color: #009246 !important;
+  border-color: #009246 !important;
+}
+
+.btn_transparente{
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: #009246;
+}
+
+.btn_inactivo{
+  color: darkgray !important;
+}
+
+label{
+  font-weight: normal;
+}
+
+.btn-success{
+  background-color: #009246 !important;
+  border-color: #009246 !important;
+}
+
+table td, table th{
+  text-align: center;
+}
+
+#tbl_DetalleOrdenPedido td, #tbl_DetalleOrdenPedido th,#tbl_ListadoOrdenPedido td , #tbl_ListadoOrdenPedido th,#tbl_CotizacionesOrdenPedido th,#tbl_CotizacionesOrdenPedido td,#tbl_CotizacionesMaterialesAgregados th, #tbl_CotizacionesMaterialesAgregados td,#Tbl_Materiales_OPP td, #Tbl_Materiales_OPP th,#Tbl_NotaCreditoFactura th,#Tbl_NotaCreditoFactura td{
+  padding: 0px;
+  text-align: center;
+}
+
+
+/* Estilo para la tabla */
+.tcpdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ddd;
+}
+
+/* Estilo para las celdas de encabezado */
+.tcpdf-table th {
+  padding: 8px;
+  border: 1px solid #ddd;
+  background-color: #f5f5f5;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* Estilo para las celdas de datos */
+.tcpdf-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+/* Estilo para las filas alternas */
+.tcpdf-table-striped tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+
+.total {
+  background-color: transparent;
+  border: none;
+  color: rgb(0, 149, 64);
+  margin-bottom: 10px;
+}
+
+.total legend {
+  display: none;
+}
+
+.total .description,
+.total .amount {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.total .description {
+  font-weight: bold;
+}
+
+.total .amount {
+  font-weight: normal;
+}

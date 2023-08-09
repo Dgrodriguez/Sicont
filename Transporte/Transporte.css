@@ -1,0 +1,47 @@
+.error {
+  border: 1px solid red;
+}
+
+.swal2-popup {
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.titulo_modal{
+  font-weight: bold;
+  font-size: 16px;
+  color: #009246;
+}
+
+label{
+  font-weight: normal;
+}
+
+.btn-success{
+  background-color: #009246 !important;
+  border-color: #009246 !important;
+}
+
+
+#tbl_DetallePasajeros td, #tbl_DetallePasajeros th{
+  padding: 0px;
+  text-align: center;
+}
+
+
+.btn_transparente{
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: #009246;
+}
+
+.table th, .table td{
+  padding: 0px !important;
+  text-align:center;
+}
+
+#tbl_servicios_cargados td, #tbl_servicios_cargados th{
+  padding: 0px;
+  text-align: center;
+}

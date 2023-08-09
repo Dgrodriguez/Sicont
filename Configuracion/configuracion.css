@@ -1,0 +1,48 @@
+.error {
+  border: 1px solid red;
+}
+
+.button-icon-only {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  font-size: 0;
+  line-height: 1;
+}
+
+.button-icon-only i {
+  font-size: 16px;
+  line-height: 1;
+}
+
+#GridUsuariosCargados_wrapper{
+  margin-left: 122px;
+}
+
+.table-striped thead th{
+  background-color: #A2D340;
+  padding: 0px;
+}
+
+/* Estilos para filas impares */
+.table-striped tr:nth-child(odd) {
+  background-color: #A7A8AA !important;
+}
+
+/* Estilos para filas pares */
+.table-striped tr:nth-child(even) {
+  background-color: #fff;
+}
+
+/* Estilos para cada quinta fila */
+.table-striped tr:nth-of-type(5n) {
+  background-color: #08D6BD;
+}
+
+.table-striped td {
+  padding: 0px;
+  
+  justify-content: center;
+  align-items: center;
+}
+
