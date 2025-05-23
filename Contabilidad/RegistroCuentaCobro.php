@@ -74,12 +74,12 @@
             <div class="form-group row col-md-4">
                 <center> 
                     <div class="col-md-4">
-                        <button class="btn btn-success" id="btnModalHistoricoOtroSi" data-toggle="tooltip" data-placement="top" title="Historicos Otro SI" onclick="CargarHistoricoCuentaCobro()" disabled="true"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-success" id="btnModalHistoricoOtroSi" data-toggle="tooltip" data-placement="top" title="Historicos Cuenta de Cobro" onclick="CargarHistoricoCuentaCobro()" disabled="true"><i class="fa-solid fa-magnifying-glass"></i></button>
 
                         <button id="Btn_ModalHistoricoOtroSi" data-toggle="modal" data-target="#ModalHistoricoOtroSi" style="display:none;">x</button>
                     </div>
                     <div class="col-md-4">
-                        <button class="btn btn-success" id="btnModalNuevoOtroSi" data-bs-toggle="tooltip" data-toggle="tooltip" data-placement="top" onclick="CalcularCuentaCobro()" title="Generar Otro SI" disabled="true"><i class="fa-solid fa-file-circle-plus"></i></button>
+                        <button class="btn btn-success" id="btnModalNuevoOtroSi" data-bs-toggle="tooltip" data-toggle="tooltip" data-placement="top" onclick="CalcularCuentaCobro()" title="Generar Cuenta de Cobro" disabled="true"><i class="fa-solid fa-file-circle-plus"></i></button>
 
                         <button id="Btn_ModalAgregarCuentaCobro" style="display:none;" data-toggle="modal" data-target="#ModalCuentaCobro">x</button>
                     </div>
@@ -307,6 +307,19 @@
 
 
         $('#GridContratoArchivosCargados').DataTable({
+          "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+          },
+          "pageLength": 50,
+          "lengthChange": false,
+          "searching": false,
+          "dom": '<"datatable-header"l>rtip',
+          "drawCallback": function(settings) {
+            $('div.dataTables_length').hide();
+          }
+        });
+
+        $('#GridContratoCuentaCobroCargados').DataTable({
           "language": {
             "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
           },

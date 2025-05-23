@@ -255,30 +255,38 @@ function BuscarProveedore() {
 
 
 function SubirCargaMasiva() {
+
     if(ArchivosCargados.length>0){
         var FechaActualizacion = $("#ProveedorListaPrecio_fechaActCM").val();
-        $("#ProveedorListaPrecio_ListaProveedores").show(500);
-        $.ajax({
-            url: 'Proveedores.php',
-            type: 'POST',
-            data:{opcion:"SubirCargaMasiva",ArchivosCargados:ArchivosCargados,IdProveedor:IdProveedor,FechaActualizacion:FechaActualizacion},
-            success: function(respuesta){
-                if(respuesta.trim()=="OK"){
-                    window.Swal.fire("Exito!","Datos Cargados exitosamente!","success").then(function() {
-                        $("#ProveedorListaPrecio_ProveedorCM").val("");
-                        $("#ProveedorListaPrecio_fechaActCM").val("");
-                        $("#CerrarModal").click();
-                    });
-                }else{
-                    window.toastr.warning("Finalizo la carga del archivo, sin embargo se presentaron algunos errores");
-                    $("#ProveedorListaPrecio_Errores").html(respuesta);
-                    $("#ProveedorListaPrecio_Errores").show();
+        if(!FechaActualizacion){
+            $("#ProveedorListaPrecio_fechaActCM").addClass("error");
+           window.toastr.error("Debe ingresar una fecha de actualización!");
+           return false;
+        }else{
+
+            $("#ProveedorListaPrecio_ListaProveedores").show(500);
+            $.ajax({
+                url: 'Proveedores.php',
+                type: 'POST',
+                data:{opcion:"SubirCargaMasiva",ArchivosCargados:ArchivosCargados,IdProveedor:IdProveedor,FechaActualizacion:FechaActualizacion},
+                success: function(respuesta){
+                    if(respuesta.trim()=="OK"){
+                        window.Swal.fire("Exito!","Datos Cargados exitosamente!","success").then(function() {
+                            $("#ProveedorListaPrecio_ProveedorCM").val("");
+                            $("#ProveedorListaPrecio_fechaActCM").val("");
+                            $("#CerrarModal").click();
+                        });
+                    }else{
+                        window.toastr.warning("Finalizo la carga del archivo, sin embargo se presentaron algunos errores");
+                        $("#ProveedorListaPrecio_Errores").html(respuesta);
+                        $("#ProveedorListaPrecio_Errores").show();
+                    }
+                },
+                error: function(){
+                     window.toastr.warning('Error al cargar las opciones');
                 }
-            },
-            error: function(){
-                 window.toastr.warning('Error al cargar las opciones');
-            }
-        });
+            });
+        }
     }else{
         window.toastr.error("Debe cargar un archivo para poder guardar");
     }

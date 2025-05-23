@@ -146,7 +146,7 @@
               </div>
             </div>
             <div class="col-md-3">
-              <label for="GenOrdenPedidoNC_NroOrdenCredito" class="col-md-6 titulo_modal"><span style="color:red">*</span> Nro Orden de Credito: </label>
+              <label for="GenOrdenPedidoNC_NroOrdenCredito" class="col-md-6 titulo_modal"><span style="color:red">*</span> Nro Nota de Credito: </label>
               <div class="col-md-6">
                 <input type="text"  name="GenOrdenPedidoNC_NroOrdenCredito" Id="GenOrdenPedidoNC_NroOrdenCredito" class="form-control">
               </div>

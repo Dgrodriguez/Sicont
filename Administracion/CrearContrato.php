@@ -60,18 +60,18 @@
       <fieldset class="border p-2" style="width: 100%; margin-top: 20px;">
         <legend class="w-auto titulo_modal">Cargar documentos</legend>
         <div class="form-group row">
-          <label for="CrearContrato_TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
+          <label for="CrearContratoDirect__TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
           <div class="col-sm-8">
-            <select class="form-control" id="CrearContrato_TipoDocumentoAdjunto" name="CrearContrato_TipoDocumentoAdjunto">
+            <select class="form-control CrearContrato_TipoDocumentoAdjunto" id="CrearContratoDirect__TipoDocumentoAdjunto" name="CrearContratoDirect__TipoDocumentoAdjunto">
               <option value="Ninguno">Seleccione</option>
             </select>
           </div>
         </div>
         <div class="form-group row">
           <div class="col-md-10">
-              <label for="CrearContrato_archivo" class="col-sm-4 col-form-label">Archivo</label>
+              <label for="CrearContratoDirect_archivo" class="col-sm-4 col-form-label">Archivo</label>
               <div class="col-sm-8">
-                <input type="file" class="form-control-file" id="CrearContrato_archivo" name="CrearContrato_archivo">
+                <input type="file" class="form-control-file" id="CrearContratoDirect_archivo" name="CrearContratoDirect_archivo">
               </div>
           </div>
 
@@ -195,39 +195,39 @@
   </div>
   <br>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <label for="CrearContratoDirect_ObjetoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Objeto del Contrato</label>
       <textarea class="form-control col-sm-8" id="CrearContratoDirect_ObjetoContrato" name="CrearContratoDirect_ObjetoContrato"></textarea>
     </div>
-    <div class="col-md-6">
-      <label for="CrearContratoDirect_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
-      <textarea class="form-control col-sm-8" id="CrearContratoDirect_SegmentoContrato" name="CrearContratoDirect_SegmentoContrato"></textarea>
-    </div>
   </div>
+
 
 <br>
 <div class="row">
+
   <div class="col-md-3">
-    <label for="CrearContratoDirect_TotalAportes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
-    <div class="col-sm-7">
+    <label for="CrearContratoDirect_TotalAportes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Total de Aportes/Monto Contrato</label>
+    <div class="col-sm-7" style="padding:0px;">
       <input type="text" class="form-control" disabled placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_TotalAportes" name="CrearContratoDirect_TotalAportes">
     </div>
-
   </div>
+
+
+
   <div class="col-md-3">
-    <label for="CrearContratoDirect_AportesVivaRecurso" class="col-sm-5 col-form-label"><span style="color:red">*</span>Aporte Viva Recurso</label>
+    <label for="CrearContratoDirect_AportesVivaRecurso" class="col-sm-5 col-form-label"> Aporte Viva Recurso</label>
     <div class="col-sm-7">
       <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_AportesVivaRecurso" name="CrearContratoDirect_AportesVivaRecurso">
     </div>
   </div>
   <div class="col-md-3">
-    <label for="CrearContratoDirect_AportesVivaEspecie" class="col-sm-5 col-form-label"><span style="color:red">*</span>Aporte Viva Especie</label>
+    <label for="CrearContratoDirect_AportesVivaEspecie" class="col-sm-5 col-form-label"> Aporte Viva Especie</label>
     <div class="col-sm-7">
       <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_AportesVivaEspecie" name="CrearContratoDirect_AportesVivaEspecie">
     </div>
   </div>
   <div class="col-md-3">
-    <label for="CrearContratoDirect_AportesMpioRecurso" onkeyup="CalcularSaldoTotalDirecto()" class="col-sm-5 col-form-label"><span style="color:red">*</span>Aporte Municipio Recurso</label>
+    <label for="CrearContratoDirect_AportesMpioRecurso" onkeyup="CalcularSaldoTotalDirecto()" class="col-sm-5 col-form-label"> Aporte Municipio Recurso</label>
     <div class="col-sm-7">
       <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_AportesMpioRecurso" name="CrearContratoDirect_AportesMpioRecurso">
     </div>
@@ -235,21 +235,9 @@
 </div>
 <div class="row">
   <div class="col-md-3">
-    <label for="CrearContratoDirect_AportesMpioEspecie" class="col-sm-5 col-form-label"><span style="color:red">*</span>Aporte Municipio Especie</label>
+    <label for="CrearContratoDirect_AportesMpioEspecie" class="col-sm-5 col-form-label"> Aporte Municipio Especie</label>
     <div class="col-sm-7">
       <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_AportesMpioEspecie" name="CrearContratoDirect_AportesMpioEspecie">
-    </div>
-  </div>
-  <div class="col-md-3">
-    <label for="CrearContratoDirect_ValorOtrasFuentes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
-    <div class="col-sm-7">
-      <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_ValorOtrasFuentes" name="CrearContratoDirect_ValorOtrasFuentes">
-    </div>
-  </div>
-  <div class="col-md-3">
-    <label for="CrearContratoDirect_NombreOtrasFuentes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Nombre de Otras Fuentes</label>
-    <div class="col-sm-7">
-      <input type="text" class="form-control" autocomplete="off" id="CrearContratoDirect_NombreOtrasFuentes" name="CrearContratoDirect_NombreOtrasFuentes">
     </div>
   </div>
   <div class="col-md-3">
@@ -271,32 +259,8 @@
     </SELECT> 
     </div>
   </div>
-</div>
-<br>
-<div class="row">
-  
   <div class="col-md-3">
-    <label for="CrearContratoDirect_DisponibilidadPresupuestal" class="col-sm-5 col-form-label"><span style="color:red">*</span>Disponibilidad Presupuestal (CDP)</label>
-    <div class="col-sm-7">
-      <input type="text" class="form-control" autocomplete="off" id="CrearContratoDirect_DisponibilidadPresupuestal" name="CrearContratoDirect_DisponibilidadPresupuestal">
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <label for="CrearContratoDirect_FechaDisponibilidad" class="col-sm-5 col-form-label"><span style="color:red">*</span>Fecha Disponibilidad (CDP)</label>
-    <div class="col-sm-7">
-      <input type="date" class="form-control" autocomplete="off" id="CrearContratoDirect_FechaDisponibilidad" name="CrearContratoDirect_FechaDisponibilidad">
-    </div>
-  </div>
-  <div class="col-md-3">
-    <label for="CrearContratoDirect_MontoDisponibilidad" class="col-sm-5 col-form-label"><span style="color:red">*</span>Monto Disponibilidad (CDP) </label>
-    <div class="col-sm-7">
-      <input type="text" class="form-control"  placeholder="$0.00"  autocomplete="off" id="CrearContratoDirect_MontoDisponibilidad" name="CrearContratoDirect_MontoDisponibilidad">
-    </div>
-  </div>
-
-  <div class="col-md-3">
-    <label for="CrearContratoDirect_ProcesoPertenece" class="col-sm-5 col-form-label"><span style="color:red">*</span>Proceso al que Pertenece</label>
+    <label for="CrearContratoDirect_ProcesoPertenece" class="col-sm-5 col-form-label"><span style="color:red">*</span>Proceso al que Pertenece/Programa</label>
     <div class="col-sm-7">
     <SELECT type="text" class="form-control" id="CrearContratoDirect_ProcesoPertenece" name="CrearContratoDirect_ProcesoPertenece">
       <option value="Ninguno">Seleccione</option>
@@ -312,6 +276,53 @@
         mysqli_close($con);
       ?>
     </SELECT> 
+    </div>
+  </div>
+  <div class="col-md-3">
+    <label for="CrearContratoDirect_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
+     <div class="col-sm-8" >
+       <SELECT type="text" class="form-control" id="CrearContratoDirect_SegmentoContrato" name="CrearContratoDirect_SegmentoContrato">
+        <option value="Ninguno">Seleccione</option>
+        <?php
+          $con = conectar();
+          $sql = "SELECT a.Nombre, a.Segmento ,a.Id from juridica_contrato_tipo_segmento a where a.ACTIVO = 1 ORDER BY a.Segmento";
+          $query = mysqli_query($con,$sql);
+          if(mysqli_num_rows($query)>0){
+            while($dato = mysqli_fetch_assoc($query)){
+              echo "<option value=".$dato['Id'].">".$dato['Segmento'].' - '.$dato['Nombre']."</option>";
+            }
+          }
+          mysqli_close($con);
+        ?>
+      </SELECT> 
+    </div>
+  </div>
+</div>
+<br>
+<div class="row">
+  
+  <div class="col-md-1" style="padding-left: 58px;">
+    <button class="btn_transparente" title="Adicionar otras fuentes de Financiación" data-toggle="tooltip" data-placement="top" onclick="$('#btn_Modal_CargarOtrasFuentes').click();maquillarNumero(document.getElementById('CrearContratoDirect_ValorOtrasFuentes'))"><i class="fa-solid fa-dollar-sign"></i></button>
+  </div>
+
+  <div class="col-md-3">
+    <label for="CrearContratoDirect_DisponibilidadPresupuestal" class="col-sm-5 col-form-label"><span style="color:red">*</span>Disponibilidad Presupuestal (CDP)</label>
+    <div class="col-sm-7">
+      <input type="text" class="form-control" autocomplete="off" id="CrearContratoDirect_DisponibilidadPresupuestal" name="CrearContratoDirect_DisponibilidadPresupuestal">
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <label for="CrearContratoDirect_FechaDisponibilidad" class="col-sm-5 col-form-label"><span style="color:red">*</span>Fecha Disponibilidad (CDP)</label>
+    <div class="col-sm-7">
+      <input type="date" class="form-control" autocomplete="off" id="CrearContratoDirect_FechaDisponibilidad" name="CrearContratoDirect_FechaDisponibilidad">
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <label for="CrearContratoDirect_MontoDisponibilidad" class="col-sm-5 col-form-label"><span style="color:red">*</span>Monto Disponibilidad (CDP) </label>
+    <div class="col-sm-7">
+      <input type="text" class="form-control"  placeholder="$0.00"  autocomplete="off" id="CrearContratoDirect_MontoDisponibilidad" name="CrearContratoDirect_MontoDisponibilidad">
     </div>
   </div>
 </div>
@@ -336,13 +347,13 @@
       <fieldset class="border p-2" style="width: 100%; margin-top: 20px;">
         <legend class="w-auto titulo_modal">Cliente</legend>
         <div class="form-group row">
-          <label for="CrearContratoSeleccion_dpto" class="col-sm-2 col-form-label"><span style="color:red">*</span>Departamento</label>
+          <label for="CrearContratoSeleccion_dpto" class="col-sm-2 col-form-label">Departamento</label>
           <div class="col-sm-4">
             <SELECT type="text" class="form-control" onChange="CargarMunicipio('CrearContratoSeleccion_dpto','CrearContratoSeleccion_mpio')" id="CrearContratoSeleccion_dpto" name="CrearContratoSeleccion_dpto">
               <option value="Ninguno">Seleccione</option>
             </SELECT>
           </div>
-          <label for="CrearContratoSeleccion_mpio" class="col-sm-2 col-form-label"><span style="color:red">*</span>Municipio</label>
+          <label for="CrearContratoSeleccion_mpio" class="col-sm-2 col-form-label"> Municipio</label>
           <div class="col-sm-4">
             <SELECT type="text" class="form-control" onChange="CargarRetFuente()" id="CrearContratoSeleccion_mpio" name="CrearContratoSeleccion_mpio">
               <option value="Ninguno">Seleccione</option>
@@ -350,17 +361,17 @@
           </div>
         </div>
         <div class="form-group row">
-          <label for="CrearContratoSeleccion_PersonaContacto" class="col-sm-2 col-form-label"><span style="color:red">*</span>Persona de contacto</label>
+          <label for="CrearContratoSeleccion_PersonaContacto" class="col-sm-2 col-form-label"> Persona de contacto</label>
           <div class="col-sm-10">
             <input type="text" class="form-control" autocomplete="off" id="CrearContratoSeleccion_PersonaContacto" name="CrearContratoSeleccion_PersonaContacto">
           </div>
         </div>
         <div class="form-group row">
-          <label for="CrearContratoSeleccion_NumeroContacto" class="col-sm-2 col-form-label"><span style="color:red">*</span>Número de contacto</label>
+          <label for="CrearContratoSeleccion_NumeroContacto" class="col-sm-2 col-form-label"> Número de contacto</label>
           <div class="col-sm-4">
             <input type="text" class="form-control" onkeypress="SoloNumeros(event)"  autocomplete="off" id="CrearContratoSeleccion_NumeroContacto" name="CrearContratoSeleccion_NumeroContacto">
           </div>
-          <label for="CrearContratoSeleccion_CorreoContacto" class="col-sm-2 col-form-label"><span style="color:red">*</span>Correo de contacto</label>
+          <label for="CrearContratoSeleccion_CorreoContacto" class="col-sm-2 col-form-label"> Correo de contacto</label>
           <div class="col-sm-4">
             <input type="email" class="form-control" autocomplete="off" id="CrearContratoSeleccion_CorreoContacto" name="CrearContratoSeleccion_CorreoContacto">
           </div>
@@ -371,18 +382,18 @@
       <fieldset class="border p-2" style="width: 100%; margin-top: 20px;">
         <legend class="w-auto titulo_modal">Cargar documentos</legend>
         <div class="form-group row">
-          <label for="CrearContrato_TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
+          <label for="CrearContratoProces_TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
           <div class="col-sm-8">
-            <select class="form-control" id="CrearContrato_TipoDocumentoAdjunto" name="CrearContrato_TipoDocumentoAdjunto">
+            <select class="form-control CrearContrato_TipoDocumentoAdjunto" id="CrearContratoProces_TipoDocumentoAdjunto" name="CrearContratoProces_TipoDocumentoAdjunto">
               <option value="Ninguno">Seleccione</option>
             </select>
           </div>
         </div>
         <div class="form-group row">
           <div class="col-md-10">
-              <label for="CrearContrato_archivo" class="col-sm-4 col-form-label">Archivo</label>
+              <label for="CrearContratoProc_archivo" class="col-sm-4 col-form-label">Archivo</label>
               <div class="col-sm-8">
-                <input type="file" class="form-control-file" id="CrearContrato_archivo" name="CrearContrato_archivo">
+                <input type="file" class="form-control-file" id="CrearContratoProc_archivo" name="CrearContratoProc_archivo">
               </div>
           </div>
 
@@ -485,25 +496,25 @@
   <br>
 
   <div class="row">
-    <div class="col-md-3">
-      <label for="CrearContratoSeleccion_TotalAportes" class="col-sm-4 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
+<!--     <div class="col-md-3">
+      <label for="CrearContratoSeleccion_TotalAportes" class="col-sm-4 col-form-label"> <span style="color:red">*</span> Total de Aportes/Monto Contrato</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" disabled placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_TotalAportes" name="CrearContratoSeleccion_TotalAportes">
       </div>
-    </div>
-    <div class="col-md-3">
+    </div> -->
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_DisponibilidadPresupuestal" class="col-sm-4 col-form-label"><span style="color:red">*</span>Disponibilidad Presupuestal (CDP)</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" autocomplete="off" id="CrearContratoSeleccion_DisponibilidadPresupuestal" name="CrearContratoSeleccion_DisponibilidadPresupuestal">
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_FechaDisponibilidad" class="col-sm-4 col-form-label"><span style="color:red">*</span>Fecha Disponibilidad (CDP)</label>
       <div class="col-sm-8">
         <input type="date" class="form-control" autocomplete="off" id="CrearContratoSeleccion_FechaDisponibilidad" name="CrearContratoSeleccion_FechaDisponibilidad">
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_MontoDisponibilidad" class="col-sm-4 col-form-label"><span style="color:red">*</span>Monto Disponibilidad (CDP) </label>
       <div class="col-sm-8">
         <input type="text" class="form-control"  placeholder="$0.00"  autocomplete="off" id="CrearContratoSeleccion_MontoDisponibilidad" name="CrearContratoSeleccion_MontoDisponibilidad">
@@ -511,55 +522,43 @@
     </div>
   </div>
 
-  <br>
+<!--   <br>
 
 
   <div class="row">
     <div class="col-md-3">
-      <label for="CrearContratoSeleccion_AportesMpioEspecie" class="col-sm-4 col-form-label"><span style="color:red">*</span>Aporte Municipio Especie</label>
+      <label for="CrearContratoSeleccion_AportesMpioEspecie" class="col-sm-4 col-form-label"> Aporte Municipio Especie</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_AportesMpioEspecie" name="CrearContratoSeleccion_AportesMpioEspecie">
       </div>
     </div>
     <div class="col-md-3">
-      <label for="CrearContratoSeleccion_AportesVivaRecurso" class="col-sm-4 col-form-label"><span style="color:red">*</span>Aporte Viva Recurso</label>
+      <label for="CrearContratoSeleccion_AportesVivaRecurso" class="col-sm-4 col-form-label"> Aporte Viva Recurso</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_AportesVivaRecurso" name="CrearContratoSeleccion_AportesVivaRecurso">
       </div>
     </div>
     <div class="col-md-3">
-      <label for="CrearContratoSeleccion_AportesVivaEspecie" class="col-sm-4 col-form-label"><span style="color:red">*</span>Aporte Viva Especie</label>
+      <label for="CrearContratoSeleccion_AportesVivaEspecie" class="col-sm-4 col-form-label"> Aporte Viva Especie</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_AportesVivaEspecie" name="CrearContratoSeleccion_AportesVivaEspecie">
       </div>
     </div>
     <div class="col-md-3">
-      <label for="CrearContratoSeleccion_AportesMpioRecurso" onkeyup="CalcularSaldoTotalSeleccion()" class="col-sm-4 col-form-label"><span style="color:red">*</span>Aporte Municipio Recurso</label>
+      <label for="CrearContratoSeleccion_AportesMpioRecurso" onkeyup="CalcularSaldoTotalSeleccion()" class="col-sm-4 col-form-label">Aporte Municipio Recurso</label>
       <div class="col-sm-8">
         <input type="text" class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_AportesMpioRecurso" name="CrearContratoSeleccion_AportesMpioRecurso">
       </div>
     </div>
-  </div>
+  </div> -->
   <br>
 
   <div class="row">
-    <div class="col-md-3">
-      <label for="CrearContratoSeleccion_ValorOtrasFuentes" class="col-sm-4 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
-      <div class="col-sm-8">
-        <input type="text" class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_ValorOtrasFuentes" name="CrearContratoSeleccion_ValorOtrasFuentes">
-      </div>
-    </div>
-    <div class="col-md-3">
-      <label for="CrearContratoSeleccion_NombreOtrasFuentes" class="col-sm-4 col-form-label"><span style="color:red">*</span>Nombre de Otras Fuentes</label>
-      <div class="col-sm-8">
-        <input type="text" class="form-control" autocomplete="off" id="CrearContratoSeleccion_NombreOtrasFuentes" name="CrearContratoSeleccion_NombreOtrasFuentes">
-      </div>
-    </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_DireccionPertenece" class="col-sm-4 col-form-label"><span style="color:red">*</span>Dirección al que Pertenece</label>
       <div class="col-sm-8">
       <SELECT type="text" class="form-control" id="CrearContratoSeleccion_DireccionPertenece" name="CrearContratoSeleccion_DireccionPertenece">
-        <option value="Ninguno">Seleccione</option>
+        <option value="Ninguno" selected="true" disabled="true">Seleccione</option>
         <?php
           $con = conectar();
           $sql = "SELECT a.Nombre, a.Id from cfg_areas_depto a where a.ACTIVO = 1 ORDER BY a.Nombre";
@@ -574,11 +573,11 @@
       </SELECT> 
       </div>
     </div>
-    <div class="col-md-3">
-      <label for="CrearContratoSeleccion_ProcesoPertenece" class="col-sm-4 col-form-label"><span style="color:red">*</span>Proceso al que Pertenece</label>
+    <div class="col-md-4">
+      <label for="CrearContratoSeleccion_ProcesoPertenece" class="col-sm-4 col-form-label"><span style="color:red">*</span>Proceso al que Pertenece/Programa</label>
       <div class="col-sm-8">
       <SELECT type="text" class="form-control" id="CrearContratoSeleccion_ProcesoPertenece" name="CrearContratoSeleccion_ProcesoPertenece">
-        <option value="Ninguno">Seleccione</option>
+        <option value="Ninguno" selected="true" disabled="true">Seleccione</option>
         <?php
           $con = conectar();
           $sql = "SELECT a.Nombre, a.Id from cfg_areas_proceso a where a.ACTIVO = 1 ORDER BY a.Nombre";
@@ -593,37 +592,49 @@
       </SELECT> 
       </div>
     </div>
+    <div class="col-md-4">
+      <label for="CrearContratoSeleccion_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
+      <div class="col-sm-8" >
+        <SELECT type="text" class="form-control" id="CrearContratoSeleccion_SegmentoContrato" name="CrearContratoSeleccion_SegmentoContrato">
+          <option value="Ninguno" selected="true" disabled="true">Seleccione</option>
+          <?php
+            $con = conectar();
+            $sql = "SELECT a.Nombre, a.Segmento ,a.Id from juridica_contrato_tipo_segmento a where a.ACTIVO = 1 ORDER BY a.Segmento";
+            $query = mysqli_query($con,$sql);
+            if(mysqli_num_rows($query)>0){
+              while($dato = mysqli_fetch_assoc($query)){
+                echo "<option value=".$dato['Id'].">".$dato['Segmento'].' - '.$dato['Nombre']."</option>";
+              }
+            }
+            mysqli_close($con);
+          ?>
+        </SELECT> 
+      </div>
+    </div>
+<!--     <div class="col-md-2">
+      <button class="btn_transparente" title="Adicionar otras fuentes de Financiación" data-toggle="tooltip" data-placement="top" onclick="$('#btn_Modal_CargarOtrasFuentes').click();maquillarNumero(document.getElementById('CrearContratoDirect_ValorOtrasFuentes'))"><i class="fa-solid fa-dollar-sign"></i></button>
+    </div> -->
   </div>
   <br>
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <label for="CrearContratoSeleccion_ObjetoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Objeto del Contrato</label>
       <textarea class="form-control col-sm-8" id="CrearContratoSeleccion_ObjetoContrato" name="CrearContratoSeleccion_ObjetoContrato"></textarea>
     </div>
-    <div class="col-md-6">
-      <label for="CrearContratoSeleccion_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
-      <textarea class="form-control col-sm-8" id="CrearContratoSeleccion_SegmentoContrato" name="CrearContratoSeleccion_SegmentoContrato"></textarea>
-    </div>
+
   </div>
   <br>
   <div class="row">
     <div class="col-sm-4"></div>
     <div class="col-sm-3">
-      <button class="btn btn-success" onclick="GuardarContratoProcesoSeleccion()">Guardar Contrato</button>
+      <button class="btn btn-success" onclick="GuardarContratoProcesoSeleccion()">Guardar Proceso</button>
     </div>
   </div>
 
 
 
 </fieldset>
-
-
-
-
-
-
-
 
 
 
@@ -671,18 +682,18 @@
     <fieldset class="border p-2" style="width: 100%; margin-top: 20px;">
       <legend class="w-auto titulo_modal">Cargar documentos</legend>
       <div class="form-group row">
-        <label for="CrearContrato_TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
+        <label for="CrearContratoBVM_TipoDocumentoAdjunto" class="col-sm-4 col-form-label">Tipo de documento</label>
         <div class="col-sm-8">
-          <select class="form-control" id="CrearContrato_TipoDocumentoAdjunto" name="CrearContrato_TipoDocumentoAdjunto">
+          <select class="form-control CrearContrato_TipoDocumentoAdjunto" id="CrearContratoBVM_TipoDocumentoAdjunto" name="CrearContratoBVM_TipoDocumentoAdjunto">
             <option value="Ninguno">Seleccione</option>
           </select>
         </div>
       </div>
       <div class="form-group row">
         <div class="col-md-10">
-            <label for="archivo" class="col-sm-4 col-form-label">Archivo</label>
+            <label for="CrearContratoBVM_archivo" class="col-sm-4 col-form-label">Archivo</label>
             <div class="col-sm-8">
-              <input type="file" class="form-control-file" id="CrearContrato_archivo" name="CrearContrato_archivo">
+              <input type="file" class="form-control-file" id="CrearContratoBVM_archivo" name="CrearContratoBVM_archivo">
             </div>
         </div>
 
@@ -882,6 +893,70 @@
 </div>
 
 
+
+
+<button data-toggle="modal" data-target="#CargarOtrasFuentes" style="display: none;" id="btn_Modal_CargarOtrasFuentes">x</button>
+<!-- Modal -->
+<div class="modal fade" id="CargarOtrasFuentes" tabindex="-1" role="dialog" aria-labelledby="CargarOtrasFuentesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="CargarOtrasFuentesLabel">Cargar Otras Fuentes de Ingreso</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+            <div class="col-md-6">
+              <label for="CrearContratoDirect_ValorOtrasFuentes" class="col-sm-6 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control"  placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_ValorOtrasFuentes" name="CrearContratoDirect_ValorOtrasFuentes">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label for="CrearContratoDirect_NombreOtrasFuentes" class="col-sm-6 col-form-label"><span style="color:red">*</span>Nombre de Otras Fuentes</label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control" autocomplete="off" id="CrearContratoDirect_NombreOtrasFuentes" name="CrearContratoDirect_NombreOtrasFuentes">
+              </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-sm-4">
+          </div>
+          <div class="col-sm-4">
+            <button class="btn btn-success" id="btn_AdicionarContratistaContratoDirecto" onclick="AdicionarValorOtraFuenta()">Adicionar</button>
+          </div>
+        </div>
+        <br>
+
+
+        <table id="Tbl_ValorOtrasFuenta" class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre Otra Fuente</th>
+              <th>Monto Otra Fuente</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+        </table>
+
+
+
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" id="btn_CerrarModal_OrdenPEdido" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 <script type="text/javascript">
     $(document).ready(function(){
       maquillarNumero(document.getElementById("CrearContrato_Monto"));
@@ -890,16 +965,14 @@
       maquillarNumero(document.getElementById("CrearContratoDirect_AportesVivaEspecie"));
       maquillarNumero(document.getElementById("CrearContratoDirect_AportesMpioRecurso"));
       maquillarNumero(document.getElementById("CrearContratoDirect_AportesMpioEspecie"));
-      maquillarNumero(document.getElementById("CrearContratoDirect_ValorOtrasFuentes"));
       maquillarNumero(document.getElementById("CrearContratoDirect_MontoDisponibilidad"));
-
       maquillarNumero(document.getElementById("CrearContratoSeleccion_TotalAportes"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_MontoDisponibilidad"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_AportesMpioEspecie"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_AportesVivaRecurso"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_AportesVivaEspecie"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_AportesMpioRecurso"));
-      maquillarNumero(document.getElementById("CrearContratoSeleccion_ValorOtrasFuentes"));
+
       
       CargarTipoAdjuntoContrato();
       $('#Tbl_CargarContratistas').DataTable({
@@ -926,6 +999,19 @@
           $('div.dataTables_length').hide();
         }
       });
+      $('#Tbl_ValorOtrasFuenta').DataTable({
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+        },
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "dom": '<"datatable-header"l>rtip',
+        "drawCallback": function(settings) {
+          $('div.dataTables_length').hide();
+        }
+      });
+
       $('[data-toggle="tooltip"]').tooltip();
     });
 </script>

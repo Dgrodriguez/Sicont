@@ -36,7 +36,7 @@ function MostrarArchivosSoporteCargados() {
             tabla.row.add([
               '<center>'+parseInt(i+1)+'</center>',
               '<center>'+ArchivosCargados[i].NombreArchivo+'</center>',
-              '<center>'+ArchivosCargados[i].TipoDocumento+'</center>'
+              '<center>'+ArchivosCargados[i].tipo_documentoNombre+'</center>',
             ]).draw();
         }
     }
@@ -123,7 +123,7 @@ function CargarHistoricoCuentaCobro(){
     });
 
 
-    $("#ModalHistoricoCuentaCobro").click();
+    $("#Btn_ModalHistoricoSoportes").click();
 
 }
 
@@ -317,6 +317,8 @@ function CargarArchivo(){
     
     var tipo_documento = $('#CrearContrato_TipoDocumentoAdjunto').val();
     var archivo = $('#CrearContrato_archivo')[0].files[0];
+    var tipo_documentoNombre = $('#CrearContrato_TipoDocumentoAdjunto option:selected').text();
+
 
     // Validar que se haya seleccionado un archivo
     if (!archivo) {
@@ -335,6 +337,7 @@ function CargarArchivo(){
     var formData = new FormData();
     formData.append('archivo', archivo);
     formData.append('tipo_documento', tipo_documento);
+    formData.append('tipo_documentoNombre', tipo_documentoNombre);
     formData.append('opcion', 'upload_file');
 
     $.ajax({
@@ -349,6 +352,7 @@ function CargarArchivo(){
             ArchivosCargados.push({
                 NombreArchivo: data[0]['Nombre'],
                 TipoDocumento: data[0]['TipoDocumento'],
+                tipo_documentoNombre: data[0]['tipo_documentoNombre'],
                 Url: data[0]['Url'],
                 size: data[0]['size']
             });
@@ -372,8 +376,6 @@ function CargarArchivo(){
 
 
 function MostrarArchivosCargados() {
-    
-
 
     var tabla = $('#GridContratoArchivosCargados').DataTable();
     tabla.clear().draw();
@@ -382,7 +384,7 @@ function MostrarArchivosCargados() {
             tabla.row.add([
               '<center>'+parseInt(i+1)+'</center>',
               '<center>'+ArchivosCargados[i].NombreArchivo+'</center>',
-              '<center>'+ArchivosCargados[i].TipoDocumento+'</center>',
+              '<center>'+ArchivosCargados[i].tipo_documentoNombre+'</center>',
               '<center>'+ArchivosCargados[i].size+'</center>'
             ]).draw();
         }

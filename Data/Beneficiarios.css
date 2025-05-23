@@ -1,0 +1,59 @@
+.error {
+  border: 1px solid red;
+}
+
+.swal2-popup {
+  font-size: 14px;
+  font-family: 'Nunito', sans-serif;
+}
+
+.titulo_modal{
+  font-weight: bold;
+  font-size: 16px;
+  color: #009246;
+}
+
+label{
+  font-weight: normal;
+}
+
+.btn-success{
+  background-color: #009246 !important;
+  border-color: #009246 !important;
+}
+
+
+.btn_transparente{
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  color: #009246;
+}
+
+.btn_transparente:disabled{
+  color: gray;
+}
+
+.btn_centrado{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table th, .table td{
+  padding: 0px !important;
+  text-align:center;
+}
+
+#tbl_BenefRegPost_GrupoFamiliar td, #tbl_BenefRegPost_GrupoFamiliar th,#tbl_Postulados_Beneficiarios td, #tbl_Postulados_Beneficiarios th,#tbl_Listado_Resultados td, #tbl_Listado_Resultados th{
+  padding: 0px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#BenefRegBenf_Contrato_List{
+
+  width: 215px !important;
+  margin-left: -40px !important;
+
+}

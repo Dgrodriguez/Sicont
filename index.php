@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Mi sistema</title>
+	<title>SICONT</title>
 		<link rel="shortcut icon" type="image/png" href="img/favicon_viva.png"/>
 
       <!-- Bootstrap CSS -->
@@ -25,8 +25,13 @@
 
    <style>
 		body {
-		background-color: #f8f9fa;
-	}
+			background-color: #f8f9fa;
+			background-image: url('img/fondo_login.jpg'); /* Reemplaza 'tu_imagen.jpg' con la URL de tu imagen de fondo */
+		    background-size: cover; /* Ajusta el tamaño de la imagen para cubrir todo el cuerpo */
+		    background-repeat: no-repeat; /* Evita que la imagen se repita */
+		    background-attachment: fixed; /* Fija la imagen para que no se desplace con el contenido */
+		    background-position: center; /* Centra la imagen en el cuerpo */
+		}
 
 	.container-fluid {
 		display: flex;

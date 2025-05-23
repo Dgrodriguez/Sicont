@@ -48,18 +48,25 @@
     </div>
   </div>
   <div class="form-group row col-md-3">
-    <label for="GenOrdenPedido_Mpio" class="col-md-5 titulo_modal">Fecha de Fin: </label>
+    <label for="GenOrdenPedido_FechaFin" class="col-md-5 titulo_modal">Fecha de Fin: </label>
     <div class="col-md-6">
-       <input type="date" class="form-control" id="GenOrdenPedido_FechaIni" title="Fecha a partir de la cual se buscaran las Ordenes de Pedido"  data-toggle="tooltip">
+       <input type="date" class="form-control" id="GenOrdenPedido_FechaFin" title="Fecha hasta la cual se buscaran las Ordenes de Pedido"  data-toggle="tooltip">
     </div>
   </div>
   <div class="form-group row col-md-3">
       <label for="GenOrdenPedido_Estado" class="col-md-4 titulo_modal"> Estado: </label>
       <div class="col-md-5">
          <select class="form-control" id="GenOrdenPedido_Estado" onchange="" name="GenOrdenPedido_Estado">
-          <option value="Ninguno">Todos</option>                  
-          <option value="Pagadas">Pagadas</option>                  
-          <option value="Pendiente">Pendiente</option>                  
+          <option value="Ninguno">Todos</option>                           
+              <?php 
+                $con=conectar();
+                $sql = "SELECT Id,Nombre from cfg_estado_orden_pedido order by Nombre";
+                $query = mysqli_query($con,$sql);
+                mysqli_close($con);
+                while($dato=mysqli_fetch_array($query)){
+                  echo "<option value='".$dato['Id']."'> ".$dato['Nombre']."</option>";
+                }
+              ?>              
          </select>
       </div>
   </div>
@@ -85,6 +92,7 @@
         <th>Contrato/Convenio</th>
         <th>Observacion</th>
         <th>Monto</th>
+        <th>Estado</th>
         <th>Reportar</th>
         <th>Descargar</th>
         <th>Eliminar</th>

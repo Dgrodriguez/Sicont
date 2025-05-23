@@ -3,7 +3,8 @@
     "description": "proyecto administrativo para la gestión de procesos de la empresa viva",
     "type": "project",
     "require": {
-        "spipu/html2pdf": "dev-master"
+        "spipu/html2pdf": "dev-master",
+        "phpoffice/phpspreadsheet": "1.18"
     },
     "license": "gnu",
     "authors": [

@@ -14,14 +14,17 @@
   </div>
 
   <div class="col-md-6" id="btn_adicionar_adicional" style="display:none;">
-    <button class="btn_transparente" onclick="AdicionarInformacionAdicional()" title="Adicionar Información Adicional al Contrato" data-toggle="tooltip" data-placement="bottom" ><i class="fa-solid fa-table-list"></i></button>
+    <button disabled="true" class="btn_transparente" onclick="AdicionarInformacionAdicional()" title="Adicionar Información al Contrato" data-toggle="tooltip" data-placement="bottom" ><i class="fa-solid fa-table-list"></i></button>
 
 
-    <button class="btn_transparente" onclick="AdicionarInformacionPoliza()" title="Adicionar Información de Poliza al contrato" data-toggle="tooltip" data-placement="bottom" ><i class="fa-solid fa-file-circle-plus"></i></button>
+    <button disabled="true" class="btn_transparente" onclick="AdicionarInformacionPoliza()" title="Adicionar Información de Poliza al contrato" data-toggle="tooltip" data-placement="bottom" ><i class="fa-solid fa-file-circle-plus"></i></button>
+
+    <button disabled="true" class="btn_transparente btn_addfuentes" onclick="AdicionarInformacionAportes()" title="Información Aportes del Contrato" data-toggle="tooltip" data-placement="bottom" ><i class="fa-solid fa-dollar-sign"></i></button>
   </div>
 </div>
 
 <input type="hidden" Id="IdContrato">
+<input type="hidden" Id="TipoContrato">
 
 
 
@@ -214,13 +217,13 @@
 
 <br>
 <div class="row">
-  <div class="col-md-3">
+<!--   <div class="col-md-3">
     <label for="CrearContratoDirect_TotalAportes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
     <div class="col-sm-7">
       <input type="text" class="form-control" disabled placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_TotalAportes" name="CrearContratoDirect_TotalAportes">
     </div>
 
-  </div>
+  </div> -->
   <div class="col-md-3">
     <label for="CrearContratoDirect_AportesVivaRecurso" class="col-sm-5 col-form-label"><span style="color:red">*</span>Aporte Viva Recurso</label>
     <div class="col-sm-7">
@@ -248,9 +251,9 @@
     </div>
   </div>
   <div class="col-md-3">
-    <label for="CrearContratoDirect_ValorOtrasFuentes" class="col-sm-5 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
+    <label for="CrearContratoDirectCrearContratoSeleccion_TotalAportesCons" class="col-sm-5 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
     <div class="col-sm-7">
-      <input type="text" class="form-control" onkeyup="CalcularSaldoTotalDirecto()" placeholder="$0.00" autocomplete="off" id="CrearContratoDirect_ValorOtrasFuentes" name="CrearContratoDirect_ValorOtrasFuentes">
+      <input type="text" class="form-control" placeholder="$0.00" autocomplete="off" id="CrearContratoDirectCrearContratoSeleccion_TotalAportesCons" name="CrearContratoDirectCrearContratoSeleccion_TotalAportesCons">
     </div>
   </div>
   <div class="col-md-3">
@@ -341,11 +344,15 @@
         <div class="form-group row">
           <label for="CrearContratoSeleccion_dpto" class="col-sm-2 col-form-label"><span style="color:red">*</span>Departamento</label>
           <div class="col-sm-4">
-            <input type="text" id="CrearContratoSeleccion_dpto" readonly class="form-control">
+            <SELECT type="text" class="form-control" onChange="CargarMunicipio('CrearContratoSeleccion_dpto','CrearContratoSeleccion_mpio')" id="CrearContratoSeleccion_dpto" name="CrearContratoSeleccion_dpto">
+              <option value="Ninguno">Sin Dato</option>
+            </SELECT>
           </div>
           <label for="CrearContratoSeleccion_mpio" class="col-sm-2 col-form-label"><span style="color:red">*</span>Municipio</label>
           <div class="col-sm-4">
-            <input type="text" name="CrearContratoSeleccion_mpio" id="CrearContratoSeleccion_mpio" readonly class="form-control">
+            <SELECT type="text" class="form-control" id="CrearContratoSeleccion_mpio" name="CrearContratoSeleccion_mpio">
+              <option value="Ninguno">Sin Dato</option>
+            </SELECT>
           </div>
         </div>
         <div class="form-group row">
@@ -363,6 +370,15 @@
           <div class="col-sm-4">
             <input type="email" class="form-control" readonly autocomplete="off" id="CrearContratoSeleccion_CorreoContacto" name="CrearContratoSeleccion_CorreoContacto">
           </div>
+        </div>
+        <div class="row">
+            
+            <div class="col-sm-4">
+              
+              <button class="btn btn-success" style="display: none;" onclick="ActualizarClienteContratoProceso()" id="Btn_Update_ClienteContrato">Actualizar Cliente</button>
+
+            </div>
+
         </div>
       </fieldset>
     </div>
@@ -426,25 +442,25 @@
   <br>
 
   <div class="row">
-    <div class="col-md-3">
-      <label for="CrearContratoSeleccion_TotalAportes" class="col-sm-4 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
+<!--     <div class="col-md-3">
+      <label for="CrearContratoSeleccion_TotalAportesCons" class="col-sm-4 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
       <div class="col-sm-8">
-        <input type="text" readonly class="form-control" disabled placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_TotalAportes" name="CrearContratoSeleccion_TotalAportes">
+        <input type="text" readonly class="form-control" disabled placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_TotalAportesCons" name="CrearContratoSeleccion_TotalAportesCons">
       </div>
-    </div>
-    <div class="col-md-3">
+    </div> -->
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_DisponibilidadPresupuestal" class="col-sm-4 col-form-label"><span style="color:red">*</span>Disponibilidad Presupuestal (CDP)</label>
       <div class="col-sm-8">
         <input type="text" readonly class="form-control" autocomplete="off" id="CrearContratoSeleccion_DisponibilidadPresupuestal" name="CrearContratoSeleccion_DisponibilidadPresupuestal">
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_FechaDisponibilidad" class="col-sm-4 col-form-label"><span style="color:red">*</span>Fecha Disponibilidad (CDP)</label>
       <div class="col-sm-8">
         <input type="date" readonly class="form-control" autocomplete="off" id="CrearContratoSeleccion_FechaDisponibilidad" name="CrearContratoSeleccion_FechaDisponibilidad">
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
       <label for="CrearContratoSeleccion_MontoDisponibilidad" class="col-sm-4 col-form-label"><span style="color:red">*</span>Monto Disponibilidad (CDP) </label>
       <div class="col-sm-8">
         <input type="text" readonly class="form-control"  placeholder="$0.00"  autocomplete="off" id="CrearContratoSeleccion_MontoDisponibilidad" name="CrearContratoSeleccion_MontoDisponibilidad">
@@ -455,7 +471,7 @@
   <br>
 
 
-  <div class="row">
+<!--   <div class="row">
     <div class="col-md-3">
       <label for="CrearContratoSeleccion_AportesMpioEspecie" class="col-sm-4 col-form-label"><span style="color:red">*</span>Aporte Municipio Especie</label>
       <div class="col-sm-8">
@@ -481,10 +497,10 @@
       </div>
     </div>
   </div>
-  <br>
+  <br> -->
 
   <div class="row">
-    <div class="col-md-3">
+<!--     <div class="col-md-3">
       <label for="CrearContratoSeleccion_ValorOtrasFuentes" class="col-sm-4 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
       <div class="col-sm-8">
         <input type="text" readonly class="form-control" onkeyup="CalcularSaldoTotalSeleccion()" placeholder="$0.00" autocomplete="off" id="CrearContratoSeleccion_ValorOtrasFuentes" name="CrearContratoSeleccion_ValorOtrasFuentes">
@@ -495,7 +511,7 @@
       <div class="col-sm-8">
         <input type="text" readonly class="form-control" autocomplete="off" id="CrearContratoSeleccion_NombreOtrasFuentes" name="CrearContratoSeleccion_NombreOtrasFuentes">
       </div>
-    </div>
+    </div> -->
     <div class="col-md-3">
       <label for="CrearContratoSeleccion_DireccionPertenece" class="col-sm-4 col-form-label"><span style="color:red">*</span>Dirección al que Pertenece</label>
       <div class="col-sm-8">
@@ -534,18 +550,42 @@
       </SELECT> 
       </div>
     </div>
+    <div class="col-md-3">
+      <label for="CrearContratoSeleccion_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
+      <div class="col-sm-8">
+        <SELECT type="text" readonly class="form-control" id="CrearContratoSeleccion_SegmentoContrato" name="CrearContratoSeleccion_SegmentoContrato">
+          <option value="Ninguno">Seleccione</option>
+          <?php
+            $con = conectar();
+            $sql = "SELECT a.Nombre, a.Id from juridica_contrato_tipo_segmento a where a.ACTIVO = 1 ORDER BY a.Nombre";
+            $query = mysqli_query($con,$sql);
+            if(mysqli_num_rows($query)>0){
+              while($dato = mysqli_fetch_assoc($query)){
+                echo "<option value=".$dato['Id'].">".$dato['Nombre']."</option>";
+              }
+            }
+            mysqli_close($con);
+          ?>
+        </SELECT> 
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <label for="CrearContratoSeleccion_ESTADO_CONTRATO" class="col-sm-4 col-form-label"><span style="color:red">*</span>Estado del Ccontrato</label>
+      <div class="col-sm-8">
+        <input type="text" readonly class="form-control" autocomplete="off" id="CrearContratoSeleccion_ESTADO_CONTRATO" name="CrearContratoSeleccion_ESTADO_CONTRATO">
+      </div>
+    </div>
+
   </div>
   <br>
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <label for="CrearContratoSeleccion_ObjetoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Objeto del Contrato</label>
       <textarea class="form-control col-sm-8" readonly id="CrearContratoSeleccion_ObjetoContrato" name="CrearContratoSeleccion_ObjetoContrato"></textarea>
     </div>
-    <div class="col-md-6">
-      <label for="CrearContratoSeleccion_SegmentoContrato" class="col-sm-4 col-form-label"><span style="color:red">*</span>Segmento del Contrato</label>
-      <textarea class="form-control col-sm-8" readonly id="CrearContratoSeleccion_SegmentoContrato" name="CrearContratoSeleccion_SegmentoContrato"></textarea>
-    </div>
+
   </div>
 
 </fieldset>
@@ -815,6 +855,44 @@
 
 
 
+<button data-toggle="modal" data-target="#VerAmparosPolizas" style="display: none;" id="btn_Modal_VerAmparosPolizas">x</button>
+<!-- Modal -->
+<div class="modal fade modal-stack" id="VerAmparosPolizas" tabindex="-1" role="dialog" aria-labelledby="VerAmparosPolizasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="VerAmparosPolizasLabel">Amparos por Pólizas</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <table id="Tbl_VerAmparosPoliza" class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tipo de Amparo</th>
+              <th>Fecha Inicio</th>
+              <th>Fecha Fin</th>
+              <th>Cuantia</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+        </table>
+
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" id="btn_CerrarModal_CargarSupervisores" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 <button data-toggle="modal" data-target="#CargarSupervisores" style="display: none;" id="btn_Modal_CargarSupervisores">x</button>
 <!-- Modal -->
 <div class="modal fade modal-stack" id="CargarSupervisores" tabindex="-1" role="dialog" aria-labelledby="CargarSupervisoresLabel" aria-hidden="true">
@@ -867,143 +945,263 @@
 </div>
 
 
+<!-- fuentes de financiancion, se usa solo en caso de proceso de selcción -->
+
+<button data-toggle="modal" data-target="#CargarFuentesFinanciacion" style="display: none;" id="btn_Modal_CargarFuentesFinanciacion">x</button>
+<!-- Modal -->
+<div class="modal fade modal-stack" id="CargarFuentesFinanciacion" tabindex="-1" role="dialog" aria-labelledby="CargarFuentesFinanciacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="CargarFuentesFinanciacionLabel">Adicionar Fuentes de Financiación</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+
+          <div class="col-sm-4">
+            <label for="CargarFuentesFinanciacion_TotalAportes" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Total de Aportes</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" class="form-control"  placeholder="$0.00" disabled autocomplete="off" id="CargarFuentesFinanciacion_TotalAportes" name="CargarFuentesFinanciacion_TotalAportes">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <label for="CargarFuentesFinanciacion_AportesVivaEspecie" style="padding:0px;" class="col-sm-6 col-form-label">Aportes Viva en Especie</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" onkeyup="CalcularSaldoTotalSeleccion2()"  placeholder="$0.00" class="form-control" autocomplete="off" id="CargarFuentesFinanciacion_AportesVivaEspecie" name="CargarFuentesFinanciacion_AportesVivaEspecie">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <label for="CargarFuentesFinanciacion_AportesVivaRecursos" style="padding:0px;" class="col-sm-6 col-form-label">Aportes Viva en Recursos</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" onkeyup="CalcularSaldoTotalSeleccion2()"  placeholder="$0.00" class="form-control" autocomplete="off" id="CargarFuentesFinanciacion_AportesVivaRecursos" name="CargarFuentesFinanciacion_AportesVivaRecursos">
+            </div>
+          </div>          
+
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-sm-4">
+            <label for="CargarFuentesFinanciacion_AportesMpioEspecie" style="padding:0px;" class="col-sm-6 col-form-label">Aportes Municipio en Especie</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" onkeyup="CalcularSaldoTotalSeleccion2()"  placeholder="$0.00" class="form-control" autocomplete="off" id="CargarFuentesFinanciacion_AportesMpioEspecie" name="CargarFuentesFinanciacion_AportesMpioEspecie">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <label for="CargarFuentesFinanciacion_AportesMpioRecursos" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Aportes Municipio en Recursos</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" onkeyup="CalcularSaldoTotalSeleccion2()"  placeholder="$0.00" class="form-control"  autocomplete="off" id="CargarFuentesFinanciacion_AportesMpioRecursos" name="CargarFuentesFinanciacion_AportesMpioRecursos">
+            </div>
+          </div>
+        </div>
+
+        <br>
+        <fieldset><legend class="titulo_modal">Otros Aportes</legend>
+
+          <div class="row">
+            <div class="col-md-4">
+              <label for="AddInfoContratoProceso_ValorOtrasFuentes" class="col-sm-6 col-form-label"><span style="color:red">*</span>Valor de Otras Fuentes</label>
+              <div class="col-sm-6" style="padding:0px;">
+                <input type="text" class="form-control"  placeholder="$0.00" autocomplete="off" id="AddInfoContratoProceso_ValorOtrasFuentes" name="AddInfoContratoProceso_ValorOtrasFuentes">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="AddInfoContratoProceso_NombreOtrasFuentes" class="col-sm-6 col-form-label"><span style="color:red">*</span>Nombre de Otras Fuentes</label>
+              <div class="col-sm-6" style="padding:0px;">
+                <input type="text" class="form-control" autocomplete="off" id="AddInfoContratoProceso_NombreOtrasFuentes" name="AddInfoContratoProceso_NombreOtrasFuentes">
+              </div>
+            </div>
+            <div class="col-sm-4">
+               <button class="btn btn-success" id="btn_AdicionarOtrasFuentes" onclick="AdicionarValorOtraFuenta2()">Adicionar Otras Fuentes</button>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-md-4">
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-success" id="btn_ActualizarDatosFinancierolProceso" onclick="ActualziarDatosFinancierosProcesoSeleccion()">Actualizar Datos Financieros</button>
+          </div>
+        </div>
+        <br>
+        <div class="row"><div class="col-md-12">
+          
+          <table id="Tbl_ValorOtrasFuenta" class="table table-striped" style="width:100% !important">
+            <thead>
+              <tr>
+                <td>#</td>
+                <td>Nombre de Otra Fuente</td>
+                <td>Valor de Otra Fuente</td>
+                <td>Eliminar</td>
+              </tr>
+            </thead>
+          </table>
+
+        </div></div>
+       
+        </fieldset>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-secondary" id="btn_CerrarModal_CargarSupervisores" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 <!-- Large modal -->
 <button type="button"  class="btn btn-primary" data-toggle="modal" id="Btn_Modal_AdicionarPoliza" style="display:none;" data-target=".ModalAdicionarPolizaCont">x</button>
 <div class="modal fade ModalAdicionarPolizaCont" style="z-index:1041 !important" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-extra-wide">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title titulo_modal" id="ModalAdicionarPolizaCont">Adicionar Pólizas al Contrato</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <div class="col-sm-4" style="padding:0px;">
-            <label for="CrearContratoPoliza_TipoPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Tipo de Póliza</label>
-            <div class="col-sm-5" style="padding:0px;">
-              <SELECT type="text" class="form-control" id="CrearContratoPoliza_TipoPoliza" name="CrearContratoPoliza_TipoPoliza">
-                <option value="Ninguno">Seleccione</option>
-                <?php
-                  $con = conectar();
-                  $sql = "SELECT a.Nombre, a.Id from juridica_contrato_tipo_poliza a where a.ACTIVO = 1 ORDER BY a.Nombre";
-                  $query = mysqli_query($con,$sql);
-                  if(mysqli_num_rows($query)>0){
-                    while($dato = mysqli_fetch_assoc($query)){
-                      echo "<option value=".$dato['Id'].">".$dato['Nombre']."</option>";
-                    }
-                  }
-                  mysqli_close($con);
-                ?>
-               </SELECT> 
-            </div>
-          </div> 
-          <div class="col-sm-4" style="padding:0px;">
-            <label for="CrearContratoPoliza_CompañiaPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Compañia de la Póliza</label>
-            <div class="col-sm-5" style="padding:0px;">
-              <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_CompañiaPoliza" name="CrearContratoPoliza_CompañiaPoliza">
-            </div>
-          </div> 
-          <div class="col-sm-4" style="padding:0px;">
-            <label for="CrearContratoPoliza_NumPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Número de la Póliza</label>
-            <div class="col-sm-5" style="padding:0px;">
-              <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_NumPoliza" name="CrearContratoPoliza_NumPoliza">
-            </div>
-          </div> 
-        </div> 
-
-        <br>
-
-        <fieldset>
-          <legend class="titulo_modal">Amparos Poliza</legend>
-      
-          <div class="row">
-            <div class="col-sm-3" style="padding:0px;">
-              <label for="CrearContratoPoliza_TipoAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Amparo de Póliza</label>
-              <div class="col-sm-5" style="padding:0px;">
-                <SELECT type="text" class="form-control" id="CrearContratoPoliza_TipoAmparo" name="CrearContratoPoliza_TipoAmparo">
-                  <option value="Ninguno">Seleccione</option>
-                  <?php
-                    $con = conectar();
-                    $sql = "SELECT a.Nombre, a.Id from juridica_contrato_amparos a where a.ACTIVO = 1 ORDER BY a.Nombre";
-                    $query = mysqli_query($con,$sql);
-                    if(mysqli_num_rows($query)>0){
-                      while($dato = mysqli_fetch_assoc($query)){
-                        echo "<option value=".$dato['Id'].">".$dato['Nombre']."</option>";
+        <fieldset >
+          <legend class="titulo_modal">Adicionar Pólizas al Contrato <button title="Ampliar" data-toggle="tooltip" data-placement="top" onclick="MostrarSeccionPoliza('1')" class="btn_transparente"> <i class="fa-solid fa-circle-plus"></i> </button></legend>
+          <div id="AddPoliza" style="display: none;">
+        
+            <div class="row">
+              <div class="col-sm-4" style="padding:0px;">
+                <label for="CrearContratoPoliza_TipoPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Tipo de Póliza</label>
+                <div class="col-sm-5" style="padding:0px;">
+                  <SELECT type="text" class="form-control" id="CrearContratoPoliza_TipoPoliza" name="CrearContratoPoliza_TipoPoliza">
+                    <option value="Ninguno">Seleccione</option>
+                    <?php
+                      $con = conectar();
+                      $sql = "SELECT a.Nombre, a.Id from juridica_contrato_tipo_poliza a where a.ACTIVO = 1 ORDER BY a.Nombre";
+                      $query = mysqli_query($con,$sql);
+                      if(mysqli_num_rows($query)>0){
+                        while($dato = mysqli_fetch_assoc($query)){
+                          echo "<option value=".$dato['Id'].">".$dato['Nombre']."</option>";
+                        }
                       }
-                    }
-                    mysqli_close($con);
-                  ?>
-                 </SELECT> 
-              </div>
+                      mysqli_close($con);
+                    ?>
+                   </SELECT> 
+                </div>
+              </div> 
+              <div class="col-sm-4" style="padding:0px;">
+                <label for="CrearContratoPoliza_CompañiaPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Compañia de la Póliza</label>
+                <div class="col-sm-5" style="padding:0px;">
+                  <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_CompañiaPoliza" name="CrearContratoPoliza_CompañiaPoliza">
+                </div>
+              </div> 
+              <div class="col-sm-4" style="padding:0px;">
+                <label for="CrearContratoPoliza_NumPoliza" class="col-sm-6 col-form-label"><span style="color:red">*</span>Número de la Póliza</label>
+                <div class="col-sm-5" style="padding:0px;">
+                  <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_NumPoliza" name="CrearContratoPoliza_NumPoliza">
+                </div>
+              </div> 
             </div> 
-            <div class="col-sm-3" style="padding:0px;">
-              <label for="CrearContratoPoliza_FechaIniAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha Inicio del Amparo</label>
-              <div class="col-sm-5" style="padding:0px;">
-                <input type="date" class="form-control" autocomplete="off" id="CrearContratoPoliza_FechaIniAmparo" name="CrearContratoPoliza_FechaIniAmparo">
-              </div>
-            </div> 
-            <div class="col-sm-3" style="padding:0px;">
-              <label for="CrearContratoPoliza_FechaFinAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha FIn del Amparo</label>
-              <div class="col-sm-5" style="padding:0px;">
-                <input type="date" class="form-control" autocomplete="off" id="CrearContratoPoliza_FechaFinAmparo" name="CrearContratoPoliza_FechaFinAmparo">
-              </div>
-            </div> 
-            <div class="col-sm-3" style="padding:0px;">
-              <label for="CrearContratoPoliza_CuantiaAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Cuantía del Amparo</label>
-              <div class="col-sm-5" style="padding:0px;">
-                <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_CuantiaAmparo" name="CrearContratoPoliza_CuantiaAmparo">
-              </div>
-            </div> 
-          </div> 
 
-          <div class="row"><div class="col-sm-2"></div><div class="col-sm-3" style="padding:0px;"> <button class="btn btn-success" onclick="AdicionarAmparoPoliza()">Adicionar Amparo</button> </div> </div>
-          <br>
-          <div class="row">
-            <div class="col-sm-12">
-              <table class="table table-striped" id="Tbl_Amparos_Poliza">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Amparo</th>
-                    <th>Fecha Inicio</th>
-                    <th>Fecha Fin</th>
-                    <th>Días</th>
-                    <th>Cuantia</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-              </table>
+            <br>
+
+            <fieldset>
+              <legend class="titulo_modal">Amparos Poliza</legend>
+          
+              <div class="row">
+                <div class="col-sm-3" style="padding:0px;">
+                  <label for="CrearContratoPoliza_TipoAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Amparo de Póliza</label>
+                  <div class="col-sm-5" style="padding:0px;">
+                    <SELECT type="text" class="form-control" id="CrearContratoPoliza_TipoAmparo" name="CrearContratoPoliza_TipoAmparo">
+                      <option value="Ninguno">Seleccione</option>
+                      <?php
+                        $con = conectar();
+                        $sql = "SELECT a.Nombre, a.Id from juridica_contrato_amparos a where a.ACTIVO = 1 ORDER BY a.Nombre";
+                        $query = mysqli_query($con,$sql);
+                        if(mysqli_num_rows($query)>0){
+                          while($dato = mysqli_fetch_assoc($query)){
+                            echo "<option value=".$dato['Id'].">".$dato['Nombre']."</option>";
+                          }
+                        }
+                        mysqli_close($con);
+                      ?>
+                     </SELECT> 
+                  </div>
+                </div> 
+                <div class="col-sm-3" style="padding:0px;">
+                  <label for="CrearContratoPoliza_FechaIniAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha Inicio del Amparo</label>
+                  <div class="col-sm-5" style="padding:0px;">
+                    <input type="date" class="form-control" autocomplete="off" id="CrearContratoPoliza_FechaIniAmparo" name="CrearContratoPoliza_FechaIniAmparo">
+                  </div>
+                </div> 
+                <div class="col-sm-3" style="padding:0px;">
+                  <label for="CrearContratoPoliza_FechaFinAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha FIn del Amparo</label>
+                  <div class="col-sm-5" style="padding:0px;">
+                    <input type="date" class="form-control" autocomplete="off" id="CrearContratoPoliza_FechaFinAmparo" name="CrearContratoPoliza_FechaFinAmparo">
+                  </div>
+                </div> 
+                <div class="col-sm-3" style="padding:0px;">
+                  <label for="CrearContratoPoliza_CuantiaAmparo" class="col-sm-6 col-form-label"><span style="color:red">*</span>Cuantía del Amparo</label>
+                  <div class="col-sm-5" style="padding:0px;">
+                    <input type="text" class="form-control" autocomplete="off" id="CrearContratoPoliza_CuantiaAmparo" name="CrearContratoPoliza_CuantiaAmparo">
+                  </div>
+                </div> 
+              </div> 
+              <br>
+              <div class="row"><div class="col-sm-2"></div><div class="col-sm-3" style="padding:0px;"> <button class="btn btn-success" onclick="AdicionarAmparoPoliza()">Adicionar Amparo</button> </div> </div>
+              <br>
+              <div class="row">
+                <div class="col-sm-12">
+                  <table class="table table-striped" id="Tbl_Amparos_Poliza">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Amparo</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Días</th>
+                        <th>Cuantia</th>
+                        <th>Eliminar</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
+           </fieldset>
+
+          <div class="row"> 
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+              <button type="button" class="btn btn-success" onclick="GuardarPolizaContrato()" >Guardar Póliza</button>
             </div>
           </div>
-       </fieldset>
-
+        </div>
+        </fieldset>
        <br><br>
 
-        <fieldset id="Polizas_Cargadas" style="display:none;">
-          <legend class="titulo_modal">Polizas Cargadas</legend>
-          <div class="row">
-            <div class="col-sm-12">
-              <table class="table table-striped" id="Tbl_Lista_Poliza">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Tipo Poliza</th>
-                    <th>Compañia</th>
-                    <th>Número de Póliza</th>
-                    <th>Ver Amparos</th>
-                    <th>Eliminar</th>
-                  </tr>
-                </thead>
-              </table>
+        <fieldset>
+          <legend class="titulo_modal">Pólizas Cargadas <button title="Ampliar" data-toggle="tooltip" data-placement="top" onclick="MostrarSeccionPoliza('2')" class="btn_transparente"> <i class="fa-solid fa-circle-plus"></i> </button></legend>
+
+          <div id="MostrarPoliza" style="display:none;">
+            <div class="row">
+              <div class="col-sm-12">
+                <table class="table table-striped" id="Tbl_Lista_Poliza">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Tipo Poliza</th>
+                      <th>Compañia</th>
+                      <th>Número de Póliza</th>
+                      <th>Ver Amparos</th>
+                      <th>Eliminar</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
             </div>
           </div>
         </fieldset>
-
-
         <div class="modal-footer">
-          <button type="button" class="btn btn-success" onclick="GuardarInfoAdicionalContrato()" >Guardar Póliza</button>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         </div>
       </div>
@@ -1032,7 +1230,7 @@
             <label for="CrearContratoAdicionar_TipoPersonaContratar" class="col-sm-6 col-form-label"><span style="color:red">*</span>Tipo de Persona a Contratar</label>
             <div class="col-sm-5" style="padding:0px;">
               <SELECT type="text" class="form-control" onChange="CargarContratistas('CrearContratoAdicionar_TipoPersonaContratar')" id="CrearContratoAdicionar_TipoPersonaContratar" name="CrearContratoAdicionar_TipoPersonaContratar">
-                <option value="Ninguno">Seleccione</option>
+                <option value="Ninguno" selected="true" >Seleccione</option>
                 <?php
                   $con = conectar();
                   $sql = "SELECT a.Nombre, a.Id from juridica_contrato_tipo_persona a where a.ACTIVO = 1 ORDER BY a.Nombre";
@@ -1049,13 +1247,13 @@
             <div class="col-sm-1 BtnAddPersonas" style="padding:0px;display: none;"><button class="btn btn_transparente"  data-toggle="tooltip" data-placement="top" title="Adicionar Contratistas"  onclick="CargarPersonasContratistas()" ><i class="fa-solid fa-user-plus fa-xs"></i></button></div>
           </div> 
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_FechaInicio" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha de Inicio</label>
+            <label for="CrearContratoAdicionar_FechaInicio" class="col-sm-6 col-form-label">Fecha de Acta de Inicio</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaInicio" name="CrearContratoAdicionar_FechaInicio">
             </div>
           </div>          
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_FechaFin" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha de Fin</label>
+            <label for="CrearContratoAdicionar_FechaFin" class="col-sm-6 col-form-label">Fecha de Fin</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaFin" name="CrearContratoAdicionar_FechaFin">
             </div>
@@ -1071,14 +1269,14 @@
             </div>
           </div>
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_CompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Compromiso Presupuestal (RP)</label>
+            <label for="CrearContratoAdicionar_CompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label">Compromiso Presupuestal (RP)</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="text" class="form-control" autocomplete="off" id="CrearContratoAdicionar_CompromisoPresupuestal" name="CrearContratoAdicionar_CompromisoPresupuestal">
             </div>
           </div>
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_FechaCompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha del Compromiso Presupuestal (RP)</label>
-            <div class="col-sm-5" style="padding:0px;">
+            <label for="CrearContratoAdicionar_FechaCompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label">Fecha del Compromiso Presupuestal (RP)</label>
+            <div class="col-sm-6" style="padding:0px;">
               <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaCompromisoPresupuestal" name="CrearContratoAdicionar_FechaCompromisoPresupuestal">
             </div>
           </div>
@@ -1086,22 +1284,22 @@
         <br>
         <div class="row">
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_MontoCompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Monto del Compromiso Presupuestal (RP)</label>
+            <label for="CrearContratoAdicionar_MontoCompromisoPresupuestal" style="padding:0px;" class="col-sm-6 col-form-label">Monto del Compromiso Presupuestal (RP)</label>
             <div class="col-sm-6" style="padding:0px;">
-              <input type="text" class="form-control" autocomplete="off" id="CrearContratoAdicionar_MontoCompromisoPresupuestal" name="CrearContratoAdicionar_MontoCompromisoPresupuestal">
+              <input type="text" class="form-control" autocomplete="off" onblur="ValidarMontosCdpRp()" id="CrearContratoAdicionar_MontoCompromisoPresupuestal" name="CrearContratoAdicionar_MontoCompromisoPresupuestal">
             </div>
           </div>
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_OrdenadorGasto" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Ordenador del Gasto</label>
+            <label for="CrearContratoAdicionar_OrdenadorGasto" style="padding:0px;" class="col-sm-6 col-form-label">Ordenador del Gasto</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="text" class="form-control" autocomplete="off" id="CrearContratoAdicionar_OrdenadorGasto" name="CrearContratoAdicionar_OrdenadorGasto">
             </div>
           </div>
           <div class="col-sm-4" style="padding:0px;">
-            <label for="CrearContratoAdicionar_TipoGasto" class="col-sm-6 col-form-label"><span style="color:red">*</span>Tipo de Gasto</label>
+            <label for="CrearContratoAdicionar_TipoGasto" class="col-sm-6 col-form-label">Tipo de Gasto</label>
             <div class="col-sm-5" style="padding:0px;">
               <SELECT type="text" class="form-control" id="CrearContratoAdicionar_TipoGasto" name="CrearContratoAdicionar_TipoGasto">
-                <option value="Ninguno">Seleccione</option>
+                <option value="Ninguno" disabled="true" selected="true">Seleccione</option>
                 <?php
                   $con = conectar();
                   $sql = "SELECT a.Nombre, a.Id from juridica_contrato_tipo_gasto a where a.ACTIVO = 1 ORDER BY a.Nombre";
@@ -1120,34 +1318,42 @@
         <br>
         <div class="row">
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_FechaPubSecop" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha de Publicación Secop</label>
+            <label for="CrearContratoAdicionar_FechaPubSecop" style="padding:0px;" class="col-sm-6 col-form-label">Fecha de Publicación Secop</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaPubSecop" name="CrearContratoAdicionar_FechaPubSecop">
             </div>
           </div>
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_linkPubSecop" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Link de Publicación Secop</label>
+            <label for="CrearContratoAdicionar_linkPubSecop" style="padding:0px;" class="col-sm-6 col-form-label">Link de Publicación Secop</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="text" class="form-control" autocomplete="off" id="CrearContratoAdicionar_linkPubSecop" name="CrearContratoAdicionar_linkPubSecop">
             </div>
           </div>
           <div class="col-sm-4">
-            <label for="CrearContratoAdicionar_FechaPubGestTransp" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Fecha de Publicación Gestión Transparente</label>
+            <label for="CrearContratoAdicionar_FechaPubGestTransp" style="padding:0px;" class="col-sm-6 col-form-label">Fecha de Publicación Gestión Transparente</label>
             <div class="col-sm-6" style="padding:0px;">
               <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaPubGestTransp" name="CrearContratoAdicionar_FechaPubGestTransp">
             </div>
           </div>
         </div>
-
-
+        <br>
         <div class="row">
+          <div class="col-sm-4">
+            <label for="CrearContratoAdicionar_FechaTransCad" style="padding:0px;" class="col-sm-6 col-form-label">Fecha de Transferencia al CAD</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="date" class="form-control" autocomplete="off" id="CrearContratoAdicionar_FechaTransCad" name="CrearContratoAdicionar_FechaTransCad">
+            </div>
+          </div>
           <div class="col-sm-4">
             <button class="btn btn-primary" onclick='$("#btn_Modal_CargarSupervisores").click()'>Adicionar Supervisor</button>
           </div>
         </div>
       </div>  
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" onclick="GuardarInfoAdicionalContrato()" >Guardar Información Adicional</button>
+        <button type="button" class="btn btn-success" id="btn_actualizar" onclick="ActualizarContrato()" >ACTUALIZAR DATOS</button>
+        <button type="button" class="btn btn-danger" id="btn_desertar" style="display: none;" onclick="DesertarContrato()" >TERMINACIÓN ANTICIPADA</button>
+        <button type="button" class="btn btn-danger" id="btn_anular" onclick="AnularContrato()" >ANULAR</button>
+        <button type="button" class="btn btn-success" id="btn_Celebrar" onclick="GuardarInfoAdicionalContrato()" >CELEBRAR</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -1155,6 +1361,81 @@
 </div>
 
 
+<button data-toggle="modal" data-target="#DatosDesertarContrato" style="display: none;" id="btn_Modal_DatosDesertarContrato">x</button>
+<!-- Modal -->
+<div class="modal fade modal-stack" id="DatosDesertarContrato" tabindex="-1" role="dialog" aria-labelledby="DatosDesertarContratoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="DatosAnularContratoLabel">Desertar Contrato</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-sm-6">
+            <label for="CargarDatosDesertar_MotivoAnular" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Motivo de Deserción</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" class="form-control" autocomplete="off" id="CargarDatosDesertar_MotivoAnular" name="CargarDatosDesertar_MotivoAnular">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label for="CargarDatosDesertar_FechaAnular" style="padding:0px;" class="col-sm-5 col-form-label"><span style="color:red">*</span>Fecha de la Deserción</label>
+            <div class="col-sm-7" style="padding:0px;">
+              <input type="date" class="form-control" autocomplete="off" id="CargarDatosDesertar_FechaAnular" name="CargarDatosDesertar_FechaAnular">
+            </div>
+          </div>
+
+
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-danger" onclick="Confirmardesertar()" data-dismiss="modal">Confirmar Desertar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<button data-toggle="modal" data-target="#DatosAnularContrato" style="display: none;" id="btn_Modal_DatosAnularContrato">x</button>
+<!-- Modal -->
+<div class="modal fade modal-stack" id="DatosAnularContrato" tabindex="-1" role="dialog" aria-labelledby="DatosAnularContratoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="DatosAnularContratoLabel">Anular Contrato</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-sm-6">
+            <label for="CargarDatosAnular_MotivoAnular" style="padding:0px;" class="col-sm-6 col-form-label"><span style="color:red">*</span>Motivo de anulación</label>
+            <div class="col-sm-6" style="padding:0px;">
+              <input type="text" class="form-control" autocomplete="off" id="CargarDatosAnular_MotivoAnular" name="CargarDatosAnular_MotivoAnular">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label for="CargarDatosAnular_FechaAnular" style="padding:0px;" class="col-sm-5 col-form-label"><span style="color:red">*</span>Fecha de la anulación</label>
+            <div class="col-sm-7" style="padding:0px;">
+              <input type="date" class="form-control" autocomplete="off" id="CargarDatosAnular_FechaAnular" name="CargarDatosAnular_FechaAnular">
+            </div>
+          </div>
+
+
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-danger" onclick="ConfirmarAnular()" data-dismiss="modal">Confirmar Anular</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -1166,7 +1447,6 @@
       maquillarNumero(document.getElementById("CrearContratoDirect_AportesMpioEspecie"));
       maquillarNumero(document.getElementById("CrearContratoDirect_ValorOtrasFuentes"));
       maquillarNumero(document.getElementById("CrearContratoDirect_MontoDisponibilidad"));
-
       maquillarNumero(document.getElementById("CrearContratoSeleccion_TotalAportes"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_MontoDisponibilidad"));
       maquillarNumero(document.getElementById("CrearContratoSeleccion_AportesMpioEspecie"));
@@ -1176,8 +1456,40 @@
       maquillarNumero(document.getElementById("CrearContratoSeleccion_ValorOtrasFuentes"));
       maquillarNumero(document.getElementById("CrearContratoAdicionar_MontoCompromisoPresupuestal"));
       maquillarNumero(document.getElementById("CrearContratoPoliza_CuantiaAmparo"));
-      
+      maquillarNumero(document.getElementById("AddInfoContratoProceso_ValorOtrasFuentes"));
+   
+
+      maquillarNumero(document.getElementById("CargarFuentesFinanciacion_AportesVivaEspecie"));
+      maquillarNumero(document.getElementById("CargarFuentesFinanciacion_AportesVivaRecursos"));
+      maquillarNumero(document.getElementById("CargarFuentesFinanciacion_AportesMpioRecursos"));
+      maquillarNumero(document.getElementById("CargarFuentesFinanciacion_AportesMpioEspecie"));
+      maquillarNumero(document.getElementById("CargarFuentesFinanciacion_TotalAportes"));
+
       CargarTipoAdjuntoContrato();
+      $('#Tbl_ValorOtrasFuenta').DataTable({
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+        },
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "dom": '<"datatable-header"l>rtip',
+        "drawCallback": function(settings) {
+          $('div.dataTables_length').hide();
+        }
+      });
+       $('#Tbl_Lista_Poliza').DataTable({
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+        },
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "dom": '<"datatable-header"l>rtip',
+        "drawCallback": function(settings) {
+          $('div.dataTables_length').hide();
+        }
+      });
       $('#Tbl_CargarContratistas').DataTable({
         "language": {
           "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
@@ -1226,6 +1538,22 @@
           $('div.dataTables_length').hide();
         }
       });
+
+
+      $('#Tbl_VerAmparosPoliza').DataTable({
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+        },
+        "pageLength": 50,
+        "lengthChange": false,
+        "searching": false,
+        "dom": '<"datatable-header"l>rtip',
+        "drawCallback": function(settings) {
+          $('div.dataTables_length').hide();
+        }
+      });
+
+      
       $('[data-toggle="tooltip"]').tooltip();
     });
 </script>

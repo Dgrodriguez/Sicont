@@ -17,12 +17,25 @@ switch($opcion){
 		if(count($OrdenesPedidoCargadas)>0){
 
 			for ($i=0; $i < count($OrdenesPedidoCargadas) ; $i++) { 
+				$con = conectar();
 				
 				$Campos = ["Id_Factura","NumeroOrdenPedido","MontoOrden"];
 				$Valores = [ $IdFactura , $OrdenesPedidoCargadas[$i]["NumeroOrdenPedido"] , $OrdenesPedidoCargadas[$i]["MontoOrden"] ];
 				$Tabla = "Pedidos_Factura_Orden_Pedidos";
 				$MensajeLog1 = "Se registra Orden de Pedido nro ".$OrdenesPedidoCargadas[$i]["NumeroOrdenPedido"]." para la factura  ".$numFactura;
 				funciones_generales_BDInsertarDatos($Campos,$Valores,$Tabla,$MensajeLog1);
+
+				$id_OrdenPedido = "";
+				$sql = "SELECT Id FROM pedidos_orden_pedido where Numero_Orden_Pedido = '".$OrdenesPedidoCargadas[$i]["NumeroOrdenPedido"] ."'";
+				$query = mysqli_query($con,$sql);
+				$datos = mysqli_fetch_assoc($query);
+				$id_OrdenPedido = $datos['Id'];
+				$Campos = ["Id_EstadoORdenPedido"];
+				$Valores = [ '2' ];
+				$Tabla = "pedidos_orden_pedido";
+				$MensajeLog1 = "Se actualiza la Orden de Pedido nro ".$OrdenesPedidoCargadas[$i]["NumeroOrdenPedido"]." a pagada en la factura: ".$numFactura;
+				funciones_generales_BDActualizarDatos($id_OrdenPedido, $Campos,$Valores,$Tabla,$MensajeLog1);
+				mysqli_close($con);
 			}
 		}
 
@@ -37,7 +50,7 @@ switch($opcion){
 	}
 
 
-		echo $numFactura;
+	echo $numFactura;
 
 	break;
 	case 'CargarContrato':
@@ -133,7 +146,8 @@ switch($opcion){
 				        WHERE Numero_Orden_Pedido = '".$NumOpp."' and Estado is null
 				        GROUP BY Numero_Orden_Pedido,  Material
 				    ) r ON r.Numero_Orden_Pedido = c.Numero_Orden_Pedido AND r.Material = a.Material
-				ORDER BY  a.Material";
+				WHERE c.Numero_Orden_Pedido = '".$NumOpp."'
+				ORDER BY a.Material";
 		$query = mysqli_query($con,$sql);
 		$resultados = [];
 		if(mysqli_num_rows($query)>0){
@@ -202,9 +216,8 @@ switch($opcion){
 			$filtro.=" and a.Id_EstadoOrdenPedido = ".$Estado;
 		}
 
-
 		$con = conectar();
-		$sql = "SELECT a.Id,a.Numero_Orden_Pedido , a.Observaciones , ObtenerTotalOrdenPedido(a.Id) saldo , b.nombre depto, c.nombre mpio , d.CONTRATO_NUMERO_VIVA from pedidos_orden_pedido a INNER JOIN cfg_departamentos b ON a.Id_Depto = b.id INNER JOIN cfg_municipios c on a.Id_Mpio = c.id  INNER JOIN juridica_contrato d ON d.ID = a.Id_Contrato and a.Activo = '1' ".$filtro." order by a.Numero_Orden_Pedido";
+		$sql = "SELECT a.Id,a.Numero_Orden_Pedido , a.Observaciones , ObtenerTotalOrdenPedido(a.Id) saldo , b.nombre depto, c.nombre mpio , d.CONTRATO_NUMERO_VIVA , f.Nombre EstadoOrden from pedidos_orden_pedido a INNER JOIN cfg_departamentos b ON a.Id_Depto = b.id INNER JOIN cfg_municipios c on a.Id_Mpio = c.id  INNER JOIN juridica_contrato d ON d.ID = a.Id_Contrato INNER JOIN cfg_estado_orden_pedido f on f.Id = a.Id_EstadoOrdenPedido where a.Activo = '1' ".$filtro." order by a.Numero_Orden_Pedido";
 		$query = mysqli_query($con,$sql);
 		$resultados = [];
 		if(mysqli_num_rows($query)>0){
@@ -216,6 +229,7 @@ switch($opcion){
 				    "saldo" => $datos['saldo'],
 				    "depto" => $datos['depto'],
 				    "mpio" => $datos['mpio'],
+				    "EstadoOrden" => $datos['EstadoOrden'],
 				    "CONTRATO_NUMERO_VIVA" => $datos['CONTRATO_NUMERO_VIVA']
 				));
 			}
@@ -250,9 +264,10 @@ switch($opcion){
 			$filtro.=" and a.Id_EstadoOrdenPedido = ".$Estado;
 		}
 
+		//$sql = "SELECT a.Id,a.Numero_Orden_Pedido , a.Observaciones , ObtenerTotalOrdenPedido(a.Id) saldo , b.nombre depto, c.nombre mpio , d.CONTRATO_NUMERO_VIVA , f.Nombre EstadoOrden from pedidos_orden_pedido a INNER JOIN cfg_departamentos b ON a.Id_Depto = b.id INNER JOIN cfg_municipios c on a.Id_Mpio = c.id  INNER JOIN juridica_contrato d ON d.ID = a.Id_Contrato INNER JOIN cfg_estado_orden_pedido f on f.Id = a.Id_EstadoOrdenPedido where a.Activo = '1' ".$filtro." order by a.Numero_Orden_Pedido"
 
 		$con = conectar();
-		$sql = "SELECT a.Id,a.Numero_Orden_Pedido , a.Observaciones , ObtenerTotalOrdenPedido(a.Id) saldo , b.nombre depto, c.nombre mpio , d.CONTRATO_NUMERO_VIVA from pedidos_orden_pedido a INNER JOIN cfg_departamentos b ON a.Id_Depto = b.id INNER JOIN cfg_municipios c on a.Id_Mpio = c.id  INNER JOIN juridica_contrato d ON d.ID = a.Id_Contrato and a.Activo = '1' and a.Numero_Orden_Pedido in ( SELECT a1.Numero_Orden_Pedido FROM pedidos_orden_pedidos_reportados a1 WHERE ACTIVO = 1 and a1.Estado is null)  ".$filtro." order by a.Numero_Orden_Pedido";
+		$sql = "SELECT a.Id,a.Numero_Orden_Pedido , a.Observaciones , ObtenerTotalOrdenPedido(a.Id) saldo , b.nombre depto, c.nombre mpio , d.CONTRATO_NUMERO_VIVA , f.Nombre EstadoOrden  from pedidos_orden_pedido a INNER JOIN cfg_departamentos b ON a.Id_Depto = b.id INNER JOIN cfg_municipios c on a.Id_Mpio = c.id  INNER JOIN juridica_contrato d ON d.ID = a.Id_Contrato  INNER JOIN cfg_estado_orden_pedido f on f.Id = a.Id_EstadoOrdenPedido where a.Activo = '1' and a.Numero_Orden_Pedido in ( SELECT a1.Numero_Orden_Pedido FROM pedidos_orden_pedidos_reportados a1 WHERE ACTIVO = 1 and a1.Estado is null)  ".$filtro." order by a.Numero_Orden_Pedido";
 		#echo $sql;
 		$query = mysqli_query($con,$sql);
 		$resultados = [];
@@ -265,6 +280,7 @@ switch($opcion){
 				    "saldo" => $datos['saldo'],
 				    "depto" => $datos['depto'],
 				    "mpio" => $datos['mpio'],
+				    "EstadoOrden" => $datos['EstadoOrden'],
 				    "CONTRATO_NUMERO_VIVA" => $datos['CONTRATO_NUMERO_VIVA']
 				));
 			}
@@ -522,7 +538,7 @@ switch($opcion){
 			$filtro.= " and a.FechaSol <= '".$FechaFin."' ";
 		}
 
-		$sql = "SELECT a.ID,a.NumeroCotizacion,a.FechaSol,a.Solicitante , b.nombre Mpio, c.CONTRATO_NUMERO_VIVA FROM pedidos_Cotizacion a , cfg_municipios b , juridica_contrato c  where a.ACTIVO = '1' and a.Id_Mpio = b.id and c.ID = a.Id_Contrato ".$filtro ." order by a.FechaSol desc";
+		$sql = "SELECT a.ID,a.NumeroCotizacion,a.FechaSol,a.Solicitante , b.nombre Mpio, c.CONTRATO_NUMERO_VIVA FROM pedidos_Cotizacion a , cfg_municipios b , juridica_contrato c  where a.ACTIVO = '1' and a.Id_Mpio = b.id and c.ID = a.Id_Contrato and a.NumeroCotizacion not in ( SELECT a1.Numero_Cotizacion from pedidos_orden_pedido_cotizacion a1 INNER JOIN pedidos_orden_pedido b1 ON a1.Id_Orden_Pedido = b1.Id where a1.Activo = 1 and b1.Id_EstadoOrdenPedido != 3 and b1.Activo = 1 ) ".$filtro ." order by a.FechaSol desc";
 
 		$con = conectar();
 		$query = mysqli_query($con,$sql);
@@ -542,6 +558,29 @@ switch($opcion){
 			echo json_encode($resultados);
 		}
 	break;
+	case 'GenerarPlantillaOrdenPedido':
+	    $sql = "SELECT a.Id,a.Nombre,a.Nit, b.nombre Municipio, a.Mpio IdMpio, a.Direccion , a.Telefono from proveedor a , cfg_municipios b WHERE a.Mpio = b.id and a.Id = ".$IdProveedor;
+	    //echo $sql;
+	    $con = conectar();
+	    $query = mysqli_query($con, $sql);
+	    $resultados = [];
+	    if (mysqli_num_rows($query) > 0) {
+	        while ($datos = mysqli_fetch_assoc($query)) {
+	           array_push($resultados, array(
+	                "Id" => $datos['Id'],
+	                "Nombre" => $datos['Nombre'],
+	                "Nit" => $datos['Nit'],
+	                "Municipio" => $datos['Municipio'],
+	                "IdMpio" => $datos['IdMpio'],
+	                "Direccion" => $datos['Direccion'],
+	                "Telefono" => $datos['Telefono'],
+	                "Materiales" => CargarMaterialesPlanilla($IdProveedor,$idMpio)
+	            ));
+	        }
+	    }
+        mysqli_close($con);
+        echo json_encode($resultados);
+    break;
 	case 'BuscarElementoProveedor':
 	    $sql = "SELECT a.Id,a.Elemento,a.Precio FROM proveedor_precio a WHERE FechaCambioPrecio = ( SELECT Max(a1.FechaCambioPrecio) from proveedor_precio a1 where a1.IdProveedor = $IdProveedor and a1.mpio = '".$Mpio."') and a.mpio = '".$Mpio."' and a.Elemento LIKE '%".$ingresado."%' ORDER BY a.Elemento";
 	    //echo $sql;
@@ -587,12 +626,13 @@ switch($opcion){
 
     case 'CargarOrdenPedidoReporte':
     	
-    	$sql = "SELECT a.Id,b.Numero_Cotizacion, c.ID AS IdContrato, c.ID_DEPTO , e.nombre depto , c.ID_MUNICIPIO, f.nombre mpio ,c.CONTRATO_NUMERO_CONTRATANTE AS Convenio, d.FechaSol 
+    	$sql = "SELECT a.Id,b.Numero_Cotizacion, c.ID AS IdContrato, c.ID_DEPTO , e.nombre depto , c.ID_MUNICIPIO, f.nombre mpio ,c.CONTRATO_NUMERO_CONTRATANTE AS Convenio, d.FechaSol  , g.Nombre Estado
 		FROM pedidos_orden_pedido AS a
 		LEFT JOIN pedidos_orden_pedido_cotizacion AS b ON a.Id = b.Id_Orden_Pedido
 		LEFT JOIN juridica_contrato AS c ON c.ID = a.Id_Contrato
 		INNER JOIN cfg_departamentos e ON e.id = c.ID_DEPTO
 		INNER JOIN cfg_municipios f ON f.id = c.ID_MUNICIPIO
+		INNER JOIN cfg_estado_orden_pedido g ON g.Id = a.Id_EstadoOrdenPedido 
 		LEFT JOIN pedidos_cotizacion AS d ON d.NumeroCotizacion = b.Numero_Cotizacion
 		WHERE a.Numero_Orden_Pedido =  '".$OrdenPedidoEditar."'";
 		$con = conectar();
@@ -609,6 +649,7 @@ switch($opcion){
 	                "depto" => $datos['depto'],
 	                "mpio" => $datos['mpio'],
 	                "Convenio" => $datos['Convenio'],
+	                "Estado" => $datos['Estado'],
 	                "FechaSol" => $datos['FechaSol'],
 	                "Materiales" => []
 	            );

@@ -29,6 +29,145 @@ switch ($opcion) {
 			}
 		}
 	break;
+	case 'GuardarNuevoPerfil':
+		$con = conectar();
+		$sql_val = "SELECT PERFIL FROM usuarios_cfg_perfiles WHERE  PERFIL = '".$Nombre."'";
+		if(mysqli_num_rows(mysqli_query($con,$sql_val)) >0){
+			echo "PERFIL ya existe, intente con uno diferente!";
+		}else{
+			$Campos = ["PERFIL"];
+			$Valores = [$Nombre];
+			$Tabla = "usuarios_cfg_perfiles";
+			$MensajeLog1 = "Se registra el PERFIL nuevo: ".$Nombre;
+			$id = funciones_generales_BDInsertarDatos($Campos,$Valores,$Tabla,$MensajeLog1);
+			echo "OK";
+		}
+		mysqli_close($con);
+	break;
+	case 'GuardarNuevoMenu':
+
+		$Formulario = $Formulario ? $Formulario : "NULL";
+		$IdPadre = $IdPadre ? $IdPadre : "NULL";
+		$Icono = $Icono ? $Icono : "NULL";
+		$Orden = $Orden ? $Orden : "NULL";
+
+		$con = conectar();
+		$sql_val = "SELECT ID FROM menu WHERE  NOMBRE = '".$Nombre."'";
+		if(mysqli_num_rows(mysqli_query($con,$sql_val)) >0){
+			echo "Menú ya existe, intente con uno diferente!";
+		}else{
+			$Campos = ["NOMBRE","URL","ID_PADRE","ICONO","ORDEN","TITULO"];
+			$Valores = [$Nombre,$Formulario,$IdPadre,$Icono,$Orden,$Nombre];
+			$Tabla = "menu";
+			$MensajeLog1 = "Se registra el menu nuevo: ".$Nombre;
+			$id = funciones_generales_BDInsertarDatos($Campos,$Valores,$Tabla,$MensajeLog1);
+			echo "OK";
+		}
+		mysqli_close($con);
+	break;	
+	case 'GuardarVinculacionMenuPerfil':
+
+		$con = conectar();
+		$upd = "UPDATE menu_perfil SET ACTIVO = 0 WHERE ID_PERFIL = ".$Perfil;
+		mysqli_query($con,$upd);
+		for ($i=0; $i <count($idsMenuMarcados); $i++) { 
+			$sql_val = "SELECT ID FROM menu_perfil WHERE ID_PERFIL = ".$Perfil." and ID_MENU = ".$idsMenuMarcados[$i] ;
+			if(mysqli_num_rows(mysqli_query($con,$sql_val)) >0){
+				mysqli_query($con,"UPDATE menu_perfil SET ACTIVO = 1 WHERE ID_PERFIL = ".$Perfil);
+			}else{
+				$Campos = ["ID_PERFIL","ID_MENU"];
+				$Valores = [$Perfil,$idsMenuMarcados[$i]];
+				$Tabla = "menu_perfil";
+				$MensajeLog1 = "Se registra el menu nuevo: ".$idsMenuMarcados[$i];
+				$id = funciones_generales_BDInsertarDatos($Campos,$Valores,$Tabla,$MensajeLog1);
+			}
+		}
+		mysqli_close($con);
+		echo "OK";
+	break;	
+	case 'BuscarPadreMenu':
+		if(isset($ingresado) && strlen($ingresado) >= 3){
+			$con=conectar();
+			$sql="SELECT ID,NOMBRE FROM menu WHERE ACTIVO=1 AND NOMBRE LIKE '%".$ingresado."%' order by NOMBRE ";
+			$query = mysqli_query($con,$sql);
+			mysqli_close($con);
+			$resultados = [];
+			if(mysqli_num_rows($query)>0){
+				while($datos = mysqli_fetch_assoc($query)){
+					array_push($resultados, array(
+					    "ID" => $datos['ID'],
+					    "NOMBRE" => $datos['NOMBRE']
+					));
+				}
+			}else{
+				$resultados = "NO";
+			}
+		}
+		echo json_encode($resultados);
+	break;
+	case 'ListarOpcionesMenu':
+		$con = conectar();
+		$sql = "SELECT ID,NOMBRE,URL,ICONO,ORDEN FROM menu WHERE ACTIVO=1  ORDER BY NOMBRE";
+		$query= mysqli_query($con,$sql);
+		$resultados = [];
+		if(mysqli_num_rows($query)>0){
+			while($datos = mysqli_fetch_assoc($query)){
+				array_push($resultados, array(
+				    "ID" => $datos['ID'],
+				    "NOMBRE" => $datos['NOMBRE'],
+				    "URL" => $datos['URL'],
+				    "ICONO" => $datos['ICONO'],
+				    "ORDEN" => $datos['ORDEN']
+				));
+			}
+		}
+		echo json_encode($resultados);
+	break;
+	case 'BuscarPerfil':
+		$con = conectar();
+		$sql = "SELECT ID,PERFIL FROM usuarios_cfg_perfiles WHERE ACTIVO=1 and PERFIL LIKE '%".$ingresado."%' ORDER BY PERFIL";
+		$query= mysqli_query($con,$sql);
+		$resultados = [];
+		if(mysqli_num_rows($query)>0){
+			while($datos = mysqli_fetch_assoc($query)){
+				array_push($resultados, array(
+				    "ID" => $datos['ID'],
+				    "PERFIL" => $datos['PERFIL']
+				));
+			}
+		}
+		echo json_encode($resultados);
+	break;	
+	case 'ListarOpcionesMenu':
+		$con = conectar();
+		$sql = "SELECT ID,NOMBRE FROM menu WHERE ACTIVO=1 ORDER BY PERFIL";
+		$query= mysqli_query($con,$sql);
+		$resultados = [];
+		if(mysqli_num_rows($query)>0){
+			while($datos = mysqli_fetch_assoc($query)){
+				array_push($resultados, array(
+				    "ID" => $datos['ID'],
+				    "NOMBRE" => $datos['NOMBRE']
+				));
+			}
+		}
+		echo json_encode($resultados);
+	break;	
+	case 'ListarPerfil':
+		$con = conectar();
+		$sql = "SELECT ID,PERFIL FROM usuarios_cfg_perfiles WHERE ACTIVO=1 ORDER BY PERFIL";
+		$query= mysqli_query($con,$sql);
+		$resultados = [];
+		if(mysqli_num_rows($query)>0){
+			while($datos = mysqli_fetch_assoc($query)){
+				array_push($resultados, array(
+				    "ID" => $datos['ID'],
+				    "PERFIL" => $datos['PERFIL']
+				));
+			}
+		}
+		echo json_encode($resultados);
+	break;	
 	case 'GuardarUsuarioActualizar':
 		if($Nombre && $Apellido && $Usuario && count($Perfiles)>0){
 			$con = conectar();
@@ -40,7 +179,7 @@ switch ($opcion) {
 
 			$perfil_Viejos = [];
 			#Inicio actualización de perfiles
-			$sqlPerfil = "SELECT ID,ID_USUARIOS,ID_PERFIL FROM USUARIOS_PERFILES WHERE ID_USUARIOS = ".$IdUsuario;
+			$sqlPerfil = "SELECT ID,ID_USUARIOS,ID_PERFIL FROM USUARIOS_PERFILES WHERE Activo = 1 and ID_USUARIOS = ".$IdUsuario;
 			$query = mysqli_query($con,$sqlPerfil); 
 			while ($datos=mysqli_fetch_array($query)) {
 				#si se encuentra en la lista de la consulta y no en los traidos del form es porque fue removido el perfil y procedo a desactivar el permiso
@@ -49,13 +188,14 @@ switch ($opcion) {
 					$Valores = ["0"];
 					$Tabla = "USUARIOS_PERFILES";
 					$MensajeLog1 = "Se Actualizan los datos del usuario: ".$Usuario;
-					funciones_generales_BDActualizarDatos($IdUsuario,$Campos,$Valores,$Tabla,$MensajeLog1);
+					funciones_generales_BDActualizarDatos($datos['ID'],$Campos,$Valores,$Tabla,$MensajeLog1);
 				}
 				array_push($perfil_Viejos,$datos['ID_PERFIL']);	
 			}
 
 			#procedo a validar si existen perfiles que esten en la lista de $Perfiles y no en $perfil_Viejos, lo que significa que son los nuevos a agregar
 			$resultado = array_values(array_diff($Perfiles, $perfil_Viejos));
+			//print_r($resultado );
 			for ($a=0; $a < count($resultado); $a++) { 
 				$Campos = ["ID_USUARIOS","ID_PERFIL"];
 				$Valores = [$IdUsuario ,$resultado[$a]];
@@ -105,7 +245,7 @@ switch ($opcion) {
 				));
 			}
 			for ($i=0; $i < count($resultados); $i++) { 
-				$sql_perfiles = "SELECT a.ID_PERFIL FROM usuarios_perfiles a WHERE a.ID_USUARIOS = ".$resultados[$i]['ID'];
+				$sql_perfiles = "SELECT a.ID_PERFIL FROM usuarios_perfiles a WHERE a.ACTIVO=1 and a.ID_USUARIOS = ".$resultados[$i]['ID'];
 				$query_perfiles = mysqli_query($con,$sql_perfiles);
 				if(mysqli_num_rows($query_perfiles)>0){
 					while($datos=mysqli_fetch_array($query_perfiles)){

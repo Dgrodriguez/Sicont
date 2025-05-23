@@ -4,7 +4,7 @@
 <?php require_once("../Seguridad/conex.php"); ?>
 <div style="margin: 15px;">
 <fieldset>
-<legend class="titulo_modal">Solicitudes Pendientes</legend>
+<legend class="titulo_modal">Solicitudes Pendientes  <button class="btn btn_transparente titulo_modal" title="Descargar Excel" data-toggle="tooltip" data-placement="bottom" onclick="GenerarReporteXasignar()"><i class="fa-regular fa-file-excel"></i></button></legend>
   <table class="table table-striped" id="Tbl_Servicios_Asignar" name="Tbl_Servicios_Asignar">
     <thead>
       <tr>
@@ -14,10 +14,13 @@
         <th>Municipio Salida</th>
         <th>Fecha Destino</th>
         <th>Municipio Destino</th>
-        <th>Observaciones<br>de Destino</th>
+        <th>Otros Destinos</th>
+        <th>Pernocta</th>
         <th>Tipo Vehiculo</th>
-        <th>Cant Pasajeros</th>
-        <th>Cant Días</th>
+        <th>Cant<br>Pasajeros</th>
+        <th>Cant<br>Invitados</th>
+        <th>Cant<br>Días</th>
+        <th>Usuario Solicitante</th>
         <th>Pasajeros</th>
         <th>Asignación</th>
       </tr>
@@ -34,20 +37,32 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title titulo_modal" id="ModalDetallePasajerosLabel">Agregar Pasajero</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         
-        <table class="table table-striped" id="tbl_DetallePasajeros">
+        <fieldset><legend id="titulo_modal">Pasajeros VIVA</legend>
+          <table class="table table-striped" id="tbl_DetallePasajeros">
+            <thead>          
+              <th>Pasajero</th>
+              <th>Teléfono</th>
+              <th>Punto Recogida</th>
+            </thead><tbody></tbody>
+          </table>
+        </fieldset>
+
+      <fieldset><legend id="titulo_modal">Pasajero Invitados</legend>
+        <table class="table table-striped" id="tbl_DetalleInvitados">
           <thead>          
             <th>Pasajero</th>
             <th>Teléfono</th>
             <th>Punto Recogida</th>
           </thead><tbody></tbody>
         </table>
+      </fieldset>
+
 
       </div>
       <div class="modal-footer">
@@ -78,11 +93,11 @@
         <div class="row" style="margin-left:15px;">
           <div class="form-group col-md-6"  style="padding:0px;">
             <label for="AsignarVehiculo">Vehiculo a Asignar:</label>
-              <select class="form-control" id="AsignarVehiculo" onchange="MostrarDetallesConsuctor()" name="AsignarVehiculo">
+              <select class="form-control" id="AsignarVehiculo" onchange="MostrarDetallesConductor()" name="AsignarVehiculo">
                 <option value="Ninguno">Seleccione</option>
                 <?php 
                   $con=conectar();
-                  $sql = "SELECT Conductor,Placas,Id, Telefono , Tipo FROM Trans_Vehiculo WHERE ACTIVO = '1' ORDER BY Conductor";
+                  $sql = "SELECT Conductor,Placas,a.Id, Telefono ,b.Nombre Tipo FROM Trans_Vehiculo a inner join trans_tipo_vehiculo b on a.Tipo = b.Id WHERE a.ACTIVO = '1' ORDER BY Conductor";
                   $query = mysqli_query($con,$sql);
                   mysqli_close($con);
                   while($dato=mysqli_fetch_array($query)){
@@ -95,28 +110,24 @@
             <button class="btn_transparente" data-toggle="modal" data-target="#ModalSegundoModal"><i class="fa-solid fa-circle-plus"></i></button>
           </div>
         </div>
-
-
         <div id="DetalleConductor" style="display:none;">
           <fieldset>
             <legend class="titulo_modal">Datos del Conductor</legend>
-
               <div class="row">
                 <div class="col-md-6"><span class="titulo_modal">Nombre Y Apellido:  </span><span id="NombreConductor"></span></div>
                 <div class="col-md-6"><span class="titulo_modal">Teléfono de Contacto:  </span><span id="TelefonoConductor"></span></div>
               </div>
-
               <div class="row">
                 <div class="col-md-6"><span class="titulo_modal">Tipo Vehiculo:  </span><span id="TipoVehiculo"></span></div>
-                <div class="col-md-6"><span class="titulo_modal">Placa:  </span><span id="placaVehiculo"></span></div>
+                <div class="col-md-6"><span class="titulo_modal">Placa:  </span><span id="placaVehiculo"></span> <span class="titulo_modal"> - Cantidad :  </span><span id="CantServ"></span> <button class="btn_transparente" title="Cantidad de Servicios que el vihiculo tiene asignado para el día de ese servicio" data-toggle="tooltip" data-placement="top"><i class="fa-regular fa-circle-question"></i></button> </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <button class="btn btn-success" onclick="AplicarVehiculo()">Aplicar Vehiculo</button>
                 </div>
               </div>
-
           </fieldset>
+          <br>
         </div>
       </div>
       <div class="modal-footer">

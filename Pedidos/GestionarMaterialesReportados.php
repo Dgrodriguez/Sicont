@@ -92,6 +92,7 @@
         <th>Contrato/Convenio</th>
         <th>Observacion</th>
         <th>Monto</th>
+        <th>Estado</th>
         <th>Gestionar</th>
         <th>Descargar</th>
         <th>Eliminar</th>

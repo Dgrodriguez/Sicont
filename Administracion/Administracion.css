@@ -6,7 +6,7 @@
   color: red;
 }
 
-.swal2-popup {
+.swal2-popup, .swal2-title,.swal2-validation-message  {
   font-size: 14px;
   font-family: 'Nunito', sans-serif;
 }
@@ -37,6 +37,12 @@
   font-size: 24px;
   color: #009246;
 }
+
+
+.btn_transparente:disabled {
+  color: gray;
+}
+
 
 .btn_inactivo{
   color: darkgray !important;
@@ -110,13 +116,33 @@ table td, table th{
   font-weight: normal;
 }
 
-#Tbl_CargarContratistas td, #Tbl_CargarContratistas th,#Tbl_CargarSupervisores td,#Tbl_CargarSupervisores th,#Tbl_Amparos_Poliza td,#Tbl_Amparos_Poliza th{
+#Tbl_CargarContratistas td, #Tbl_CargarContratistas th,#Tbl_CargarSupervisores td,#Tbl_CargarSupervisores th,#Tbl_Amparos_Poliza td,#Tbl_Amparos_Poliza th,#Tbl_ValorOtrasFuenta th, #Tbl_ValorOtrasFuenta td,#Tbl_Lista_Poliza th, #Tbl_Lista_Poliza td,#Tbl_VerAmparosPoliza th, #Tbl_VerAmparosPoliza td,#Tbl_ResumenGestionDocumental th, #Tbl_ResumenGestionDocumental td,#Tbl_ResumenGestionCont th, #Tbl_ResumenGestionCont td,#Tbl_ResumenGestionDocumental_Total td, #Tbl_ResumenGestionDocumental_Total th,#Tbl_Reporte_PolizasAmparosContr td,#Tbl_Reporte_PolizasAmparosContr th,#Tbl_ResumenGenContr_Reporte_Total td, #Tbl_ResumenGenContr_Reporte_Total th{
   padding: 0px;
   text-align: center;
+  vertical-align: middle;
 }
 
+#Tbl_ResumenGestionCont th:nth-child(12) center,
+#Tbl_ResumenGestionCont td:nth-child(12) center {
+  width: 30%;
+}
 
 .modal-extra-wide {
   width: 90% !important;
 }
+
+.texto-largo {
+  max-width: 30%; /* Establece el ancho máximo */
+  white-space: nowrap; /* Evita el desbordamiento de texto */
+  overflow: hidden; /* Oculta el contenido que no cabe */
+  text-overflow: ellipsis; /* Agrega puntos suspensivos (...) si el texto es demasiado largo */
+}
+
+#Tbl_ResumenGenContr_Reporte_Total td,#Tbl_ResumenGenContr_Reporte_Total th{
+  max-width: 150px; /* Ejemplo de ancho máximo */
+  white-space: nowrap; /* Evita el desbordamiento de texto */
+  overflow: hidden; /* Oculta el contenido que no cabe */
+  text-overflow: ellipsis; /* Agrega puntos suspensivos (...) si el texto es demasiado largo */
+}
+
 

@@ -19,30 +19,9 @@
   margin-left: 122px;
 }
 
-.table-striped thead th{
-  background-color: #A2D340;
+
+#Tbl_Listado_Menu td, #Tbl_Listado_Menu th,#Tbl_Listado_Perfil td, #Tbl_Listado_Perfil th,#Tbl_Listado_pefil td, #Tbl_Listado_pefil th{
   padding: 0px;
+  text-align: center;
+  vertical-align: middle;
 }
-
-/* Estilos para filas impares */
-.table-striped tr:nth-child(odd) {
-  background-color: #A7A8AA !important;
-}
-
-/* Estilos para filas pares */
-.table-striped tr:nth-child(even) {
-  background-color: #fff;
-}
-
-/* Estilos para cada quinta fila */
-.table-striped tr:nth-of-type(5n) {
-  background-color: #08D6BD;
-}
-
-.table-striped td {
-  padding: 0px;
-  
-  justify-content: center;
-  align-items: center;
-}
-

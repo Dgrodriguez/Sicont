@@ -7,15 +7,8 @@ switch($opcion){
 
 	case 'AgregarHonorarios':
 
-		$Adjuntos = "NO";
-
-		if(count($ArchivosCargados)>0){
-			$Adjuntos = "SI";
-		}
-
-
-		$Campos = ["Id_Contrato","Monto","FechaFactura","NumeroFactura","PoseeAdjuntos"];
-		$Valores = [$IdContrato,$monto,$Fecha,$Fatura,$Adjuntos];
+		$Campos = ["Id_Contrato","Monto","FechaFactura","NumeroFactura"];
+		$Valores = [$IdContrato,$monto,$Fecha,$Fatura];
 		$Tabla = "JURIDICA_CONTRATO_HONORARIOS";
 		$MensajeLog1 = "Se registra el Honorario para el contrato ID ".$IdContrato;
 		$IdHonorarios = funciones_generales_BDInsertarDatos($Campos,$Valores,$Tabla,$MensajeLog1);

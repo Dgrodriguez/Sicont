@@ -4,20 +4,23 @@
 <?php require_once("../Seguridad/conex.php"); ?>
 <div style="margin: 15px;">
 <fieldset>
-<legend class="titulo_modal">Autorizar Solicitudes</legend>
+<legend class="titulo_modal">Autorizar Solicitudes <button class="btn btn_transparente titulo_modal" title="Descargar Excel" data-toggle="tooltip" data-placement="bottom" onclick="GenerarReporteXautorizar()"><i class="fa-regular fa-file-excel"></i></button></legend>
   <table class="table table-striped" id="Tbl_Servicios_Asignadas" name="Tbl_Servicios_Asignadas">
     <thead>
       <tr>
         <th>#</th>
         <th>Fecha Salida</th>
+        <th>Fecha Regreso</th>
         <th>Hora Salida</th>
         <th>Municipio Salida</th>
-        <th>Fecha Destino</th>
         <th>Municipio Destino</th>
         <th>Otros<br>Destino</th>
+        <th>Pernocta</th>
         <th>Tipo Vehiculo</th>
         <th>Cant Pasajeros</th>
+        <th>Cant Invitados</th>
         <th>Cant Días</th>
+        <th>Usuario Solicitante</th>
         <th>Pasajeros</th>
         <th>Autorizar</th>
       </tr>
@@ -62,12 +65,74 @@
 
 
 
+<button type="button" class="btn btn-primary" id="Btn_ModalAlertaUnificacion" style="display:none;" data-toggle="modal" data-target="#ModalAlertaUnificacion">x</button>
+<div class="modal fade" id="ModalAlertaUnificacion" tabindex="-1" role="dialog" aria-labelledby="ModalAlertaUnificacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="ModalAlertaUnificacionLabel">Alerta de Posibilidad de Servicios a Unificar</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="margin-left:15px;">
+
+        <fieldset style="Display:none;" id="fld_Servicios_Iguales"><legend class="titulo_modal">Servicios Iguales</legend>
+          <table id="Tbl_Servicios_Iguales" class="table table-striped" >
+            <thead>
+              <tr>
+                <th>Marcar</th>
+                <th>Fecha Salida</th>
+                <th>Fecha Regreso</th>
+                <th>Municipio Salida</th>
+                <th>Municipio de Regreso</th>
+                <th>Tipo de Vehiculo</th>
+                <th>Pernocta</th>
+                <th>Cant Pasajeros</th>
+                <th>Cant Invitados</th>
+                <th>Usuario Solicitante</th>
+              </tr>
+            </thead>
+          </table>   
+        </fieldset>    
+        <br>
+
+        <fieldset style="Display:none;" id="fld_Servicios_Parciales"><legend class="titulo_modal">Servicios Parcialmente Iguales</legend>
+          <table id="Tbl_Servicios_Parciales" class="table table-striped" >
+            <thead>
+              <tr>
+                <th>Marcar</th>
+                <th>Fecha Salida</th>
+                <th>Fecha Regreso</th>
+                <th>Municipio Salida</th>
+                <th>Municipio de Regreso</th>
+                <th>Tipo de Vehiculo</th>
+                <th>Pernocta</th>
+                <th>Cant Pasajeros</th>
+                <th>Cant Invitados</th>
+                <th>Usuario Solicitante</th>
+              </tr>
+            </thead>
+          </table>   
+        </fieldset>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="AplicarUnificacion()">Aplicar Unificaciones</button>
+        <button type="button" id="Btn_CerrarAlertaModal" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 
 
 
 
 <button type="button" class="btn btn-primary" id="Btn_ModalAutorizarDetalle" style="display:none;" data-toggle="modal" data-target="#ModalAutorizarDetalle">x</button>
-<div class="modal fade" id="ModalAutorizarDetalle" tabindex="-1" role="dialog" aria-labelledby="ModalAutorizarDetalleLabel" aria-hidden="true">
+<div class="modal " id="ModalAutorizarDetalle" tabindex="-1" role="dialog" aria-labelledby="ModalAutorizarDetalleLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -78,9 +143,7 @@
       </div>
       <div class="modal-body" style="margin-left:15px;">       
         <div class="row">
-
         	<input type="hidden" id="Id_Servicio">
-
        	  <div class="form-group row col-md-4" style="padding:0px;">
             <label for="TranAutorizar_TipoContrato"  class="col-md-5"><span style="color:red">*</span> Tipo de Contrato</label>
             <div class="col-md-6">
@@ -98,19 +161,17 @@
               </select>
             </div>
           </div>
+          <div class="col-md-8">
+            <div class="col-md-2"> <span class="badge badge-pill badge-success" title="Cantidad de servicios que coinciden con la fecha de salida del servicio para el contrato de tipo Fijo" data-toggle="tooltip" data-placement="bottom" id="bd_Fijo"></span> </div>
 
-       	  <div class="form-group row col-md-4" style="padding:0px;">
-            <label for="TranAutorizar_CostoVehiculo"  class="col-md-5"> Costo Contrato</label>
-            <div class="col-md-7">
-               <input type="text" class="form-control" readonly autocomplete="off" id="TranAutorizar_CostoVehiculo" name="TranAutorizar_CostoVehiculo" required>
-            </div>
-          </div>
+            <div class="col-md-2"> <span class="badge badge-pill badge-success" title="Cantidad de servicios que coinciden con la fecha de salida del servicio para el contrato de tipo Adicional" data-toggle="tooltip" data-placement="bottom" id="bd_Adicional"></span> </div>
 
-       	  <div class="form-group row col-md-4" style="padding:0px;">
-            <label for="TranAutorizar_ObserContrato"  class="col-md-6" style="margin-left: 15px;"> Observaciones Contrato</label>
-            <div class="col-md-5">
-               <textarea type="text" rows="5" class="form-control" readonly autocomplete="off" id="TranAutorizar_ObserContrato" name="TranAutorizar_ObserContrato"></textarea>
-            </div>
+            <div class="col-md-2"> <span class="badge badge-pill badge-success" title="Cantidad de servicios que coinciden con la fecha de salida del servicio para el contrato de tipo Por Horas Dentro del AMVA" data-toggle="tooltip" data-placement="bottom" id="bd_xHorasDentro"></span> </div>
+
+            <div class="col-md-2"> <span class="badge badge-pill badge-success" title="Cantidad de servicios que coinciden con la fecha de salida del servicio para el contrato de tipo Por Horas Fuera del AMVA" data-toggle="tooltip" data-placement="bottom" id="bd_xHorasFuera"></span> </div>
+
+            <div class="col-md-2"> <span class="badge badge-pill badge-success" title="Cantidad de servicios que coinciden con la fecha de salida del servicio para el contrato de tipo Saliendo del Urabá" data-toggle="tooltip" data-placement="bottom" id="bd_SaliendoUraba"></span> </div>
+
           </div>
        </div>
        <div class="row">
@@ -125,6 +186,9 @@
     </div>
   </div>
 </div>
+
+
+
 <div class="modal fade" id="segundoModal" tabindex="-1" role="dialog" aria-labelledby="segundoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -324,7 +388,6 @@
       <div class="modal-footer">
         <button type="button" onclick="AdicionarPasajeroTransporte()" class="btn btn-success">Agregar</button>
         <button type="button" class="btn btn-secondary" id="CerrarModalAddPass" data-dismiss="modal">Cerrar</button>
-        <!-- Otros botones o acciones -->
       </div>
     </div>
   </div>
@@ -339,6 +402,32 @@
 	$(document).ready(function() {
 	  CargarAsignados();
 	  $('[data-toggle="tooltip"]').tooltip();
+   
+    $('#Tbl_Servicios_Iguales').DataTable({
+      "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+      },"pageLength": 50,
+      "lengthChange": false,
+      "searching": false,
+      "dom": '<"datatable-header"l>rtip',
+      "drawCallback": function(settings) {
+        $('div.dataTables_length').hide();
+      }
+    });
+
+    $('#Tbl_Servicios_Parciales').DataTable({
+      "language": {
+        "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+      },
+      "pageLength": 50,
+      "lengthChange": false,
+      "searching": false,
+      "dom": '<"datatable-header"l>rtip',
+      "drawCallback": function(settings) {
+        $('div.dataTables_length').hide();
+      }
+    });
+
 	});
 </script>
 

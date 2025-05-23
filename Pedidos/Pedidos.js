@@ -185,66 +185,6 @@ function ReportarElementosOPP() {
     }
 }
 
-function FiltrarOrdenesPedido() {
-    
-    var depto = $("#GenOrdenPedido_Dpto").val();
-    var mpio = $("#GenOrdenPedido_Mpio").val();
-    var contrato = $("#GenOrdenPedido_contrato").val();
-    var FechaIni,FechaFin,Estado;
-
-
-    if($("#GenOrdenPedido_FechaIni").val()){
-        FechaIni = $("#GenOrdenPedido_FechaIni").val();
-    }else{
-        FechaIni = "NO";
-    }
-
-    if($("#GenOrdenPedido_FechaIni").val()){
-        FechaFin = $("#GenOrdenPedido_FechaIni").val();
-    }else{
-        FechaFin = "NO";
-    }
-
-
-    if($("#GenOrdenPedido_Estado").val()!="Ninguno"){
-        Estado = $("#GenOrdenPedido_Estado").val();
-    }else{
-        Estado = "NO";
-    }
-
-    $.ajax({
-      url: 'Pedidos.php',
-      type: 'POST',
-      data: { opcion: "FiltrarOrdenesPedido", depto: depto , mpio : mpio , contrato : contrato , FechaIni:FechaIni , FechaFin:FechaFin , Estado:Estado },
-      success: function(respuesta) {
-        var datos = JSON.parse(respuesta);
-        var tabla = $('#tbl_CotizacionesOrdenPedido').DataTable();
-        tabla.clear().draw();
-        if(datos.length>0){
-            for (var i = 0; i < datos.length; i++) {
-                tabla.row.add([
-                  '<center>'+parseInt(i+1)+'</center>',
-                  '<center>'+datos[i].Numero_Orden_Pedido+'</center>',
-                  '<center>'+datos[i].depto+'</center>',
-                  '<center>'+datos[i].mpio+'</center>',
-                  '<center>'+datos[i].CONTRATO_NUMERO_VIVA+'</center>',
-                  '<center>'+datos[i].Observaciones+'</center>',
-                  '<center>'+ formatearMonto(datos[i].saldo)+'</center>' ,                
-                  '<center><button type="button" class="btn_transparente" data-toggle="tooltip" onclick="CargarElementoReportar(\''+datos[i].Numero_Orden_Pedido+'\')" title="Reportar elemento faltante/mal estado"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></center>', 
-                  '<center><button class="btn_transparente" title="Generar PDF de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-pdf fa-2xs"></i></button><button class="btn_transparente" onclick="CargarOrdenPedidoReporte(\''+datos[i].Numero_Orden_Pedido+'\')" title="Generar Excel de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-excel fa-2xs"></i></button></center>',
-                  '<center><button type="button" onclick="DesactivarOrdenPedido(\''+datos[i].Numero_Orden_Pedido+'\')" class="btn_transparente" data-toggle="tooltip" title="Desactivar Orden de Pedido"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'  
-                ]).draw();
-            }
-            $('[data-toggle="tooltip"]').tooltip();
-        }
-      },error: function() {
-        window.toastr.error('Error al cargar las opciones');
-      }
-    });
-}
-
-
-
 
 function FiltrarOrdenesPedidoReportados() {
     
@@ -291,6 +231,7 @@ function FiltrarOrdenesPedidoReportados() {
                   '<center>'+datos[i].CONTRATO_NUMERO_VIVA+'</center>',
                   '<center>'+datos[i].Observaciones+'</center>',
                   '<center>'+ formatearMonto(datos[i].saldo)+'</center>' ,                
+                  '<center>'+datos[i].EstadoOrden+'</center>' ,             
                   '<center><button type="button" class="btn_transparente" data-toggle="tooltip" onclick="CargarElementoResolverReportar(\''+datos[i].Numero_Orden_Pedido+'\')" title="Gestionar elemento faltante/mal estado"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></center>',
                   '<center><button class="btn_transparente" title="Generar PDF de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-pdf fa-2xs"></i></button><button class="btn_transparente" onclick="CargarOrdenPedidoReporte(\''+datos[i].Numero_Orden_Pedido+'\')" title="Generar Excel de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-excel fa-2xs"></i></button></center>',
                   '<center><button type="button" onclick="DesactivarOrdenPedido(\''+datos[i].Numero_Orden_Pedido+'\')" class="btn_transparente" data-toggle="tooltip" title="Desactivar Orden de Pedido"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'  
@@ -303,6 +244,9 @@ function FiltrarOrdenesPedidoReportados() {
       }
     });
 }
+
+
+/*
 
 
 function FiltrarOrdenesPedido() {
@@ -319,8 +263,8 @@ function FiltrarOrdenesPedido() {
         FechaIni = "NO";
     }
 
-    if($("#GenOrdenPedido_FechaIni").val()){
-        FechaFin = $("#GenOrdenPedido_FechaIni").val();
+    if($("#GenOrdenPedido_FechaFin").val()){
+        FechaFin = $("#GenOrdenPedido_FechaFin").val();
     }else{
         FechaFin = "NO";
     }
@@ -350,6 +294,71 @@ function FiltrarOrdenesPedido() {
                   '<center>'+datos[i].CONTRATO_NUMERO_VIVA+'</center>',
                   '<center>'+datos[i].Observaciones+'</center>',
                   '<center>'+ formatearMonto(datos[i].saldo)+'</center>' ,                
+                  '<center><button type="button" class="btn_transparente" data-toggle="tooltip" onclick="CargarElementoReportar(\''+datos[i].Numero_Orden_Pedido+'\')" title="Reportar elemento faltante/mal estado"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></center>', 
+                  '<center><button class="btn_transparente" title="Generar PDF de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-pdf fa-2xs"></i></button><button class="btn_transparente" onclick="CargarOrdenPedidoReporte(\''+datos[i].Numero_Orden_Pedido+'\')" title="Generar Excel de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-excel fa-2xs"></i></button></center>',
+                  '<center><button type="button" onclick="DesactivarOrdenPedido(\''+datos[i].Numero_Orden_Pedido+'\')" class="btn_transparente" data-toggle="tooltip" title="Desactivar Orden de Pedido"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'  
+                ]).draw();
+            }
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+      },error: function() {
+        window.toastr.error('Error al cargar las opciones');
+      }
+    });
+}
+
+
+
+
+*/
+
+function FiltrarOrdenesPedido() {
+    
+    var depto = $("#GenOrdenPedido_Dpto").val();
+    var mpio = $("#GenOrdenPedido_Mpio").val();
+    var contrato = $("#GenOrdenPedido_contrato").val();
+    var FechaIni,FechaFin,Estado;
+
+
+    if($("#GenOrdenPedido_FechaIni").val()){
+        FechaIni = $("#GenOrdenPedido_FechaIni").val();
+    }else{
+        FechaIni = "NO";
+    }
+
+    if($("#GenOrdenPedido_FechaFin").val()){
+        FechaFin = $("#GenOrdenPedido_FechaFin").val();
+    }else{
+        FechaFin = "NO";
+    }
+
+
+
+    if($("#GenOrdenPedido_Estado").val()!="Ninguno"){
+        Estado = $("#GenOrdenPedido_Estado").val();
+    }else{
+        Estado = "NO";
+    }
+
+    $.ajax({
+      url: 'Pedidos.php',
+      type: 'POST',
+      data: { opcion: "FiltrarOrdenesPedido", depto: depto , mpio : mpio , contrato : contrato , FechaIni:FechaIni , FechaFin:FechaFin , Estado:Estado },
+      success: function(respuesta) {
+        var datos = JSON.parse(respuesta);
+        var tabla = $('#tbl_CotizacionesOrdenPedido').DataTable();
+        tabla.clear().draw();
+        if(datos.length>0){
+            for (var i = 0; i < datos.length; i++) {
+                tabla.row.add([
+                  '<center>'+parseInt(i+1)+'</center>',
+                  '<center>'+datos[i].Numero_Orden_Pedido+'</center>',
+                  '<center>'+datos[i].depto+'</center>',
+                  '<center>'+datos[i].mpio+'</center>',
+                  '<center>'+datos[i].CONTRATO_NUMERO_VIVA+'</center>',
+                  '<center>'+datos[i].Observaciones+'</center>',
+                  '<center>'+ formatearMonto(datos[i].saldo)+'</center>' ,                
+                  '<center>'+datos[i].EstadoOrden+'</center>' ,                
                   '<center><button type="button" class="btn_transparente" data-toggle="tooltip" onclick="CargarElementoReportar(\''+datos[i].Numero_Orden_Pedido+'\')" title="Reportar elemento faltante/mal estado"><i class="fa-regular fa-pen-to-square fa-2xs"></i></button></center>', 
                   '<center><button class="btn_transparente" title="Generar PDF de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-pdf fa-2xs"></i></button><button class="btn_transparente" onclick="CargarOrdenPedidoReporte(\''+datos[i].Numero_Orden_Pedido+'\')" title="Generar Excel de Resumen" data-toggle="tooltip" ><i class="fa-regular fa-file-excel fa-2xs"></i></button></center>',
                   '<center><button type="button" onclick="DesactivarOrdenPedido(\''+datos[i].Numero_Orden_Pedido+'\')" class="btn_transparente" data-toggle="tooltip" title="Desactivar Orden de Pedido"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'  

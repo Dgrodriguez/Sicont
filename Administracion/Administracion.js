@@ -2,6 +2,137 @@ var ArchivosCargados = [];
 var ContratistasDirecto = [];
 var SupervisoresContrato = [];
 var AmparosPoliza = [];
+var OtraFuente = [];
+var MontoOtraFuente = 0;
+var Polizas = [];
+var Contratos = [];
+var TotalesContratos = [];
+
+function AdicionarValorOtraFuenta2() {
+    var NombreFuente = $("#AddInfoContratoProceso_NombreOtrasFuentes").val();
+    var MontoFuente = $("#AddInfoContratoProceso_ValorOtrasFuentes").val();
+
+    if(!NombreFuente || !MontoFuente){
+
+        if(!NombreFuente){$("#AddInfoContratoProceso_NombreOtrasFuentes").addClass("error");}
+        if(!MontoFuente){$("#AddInfoContratoProceso_ValorOtrasFuentes").addClass("error");}
+
+        window.toastr.error("El Nombre y el Monto de la fuente son obligatorios!");
+        return false;
+    }
+    if(NombreFuente && MontoFuente){
+        OtraFuente.push({ "Id":OtraFuente.length, "NombreOtraFuente":NombreFuente , "MontoOtraFuente": MontoFuente });
+    }
+    $("#AddInfoContratoProceso_NombreOtrasFuentes").val("");
+    $("#AddInfoContratoProceso_ValorOtrasFuentes").val("");
+    CalcularSaldoTotalSeleccion2();
+    MostrarOtrasFuentes();
+}
+
+
+function AdicionarValorOtraFuenta() {
+    var NombreFuente = $("#CrearContratoDirect_NombreOtrasFuentes").val();
+    var MontoFuente = $("#CrearContratoDirect_ValorOtrasFuentes").val();
+
+    if(!NombreFuente || !MontoFuente){
+
+        if(!NombreFuente){$("#CrearContratoDirect_NombreOtrasFuentes").addClass("error");}
+        if(!MontoFuente){$("#CrearContratoDirect_ValorOtrasFuentes").addClass("error");}
+
+        window.toastr.error("El Nombre y el Monto de la fuente son obligatorios!");
+        return false;
+    }
+    if(NombreFuente && MontoFuente){
+        OtraFuente.push({ "Id":OtraFuente.length, "NombreOtraFuente":NombreFuente , "MontoOtraFuente": MontoFuente });
+    }
+    $("#CrearContratoDirect_NombreOtrasFuentes").val("");
+    $("#CrearContratoDirect_ValorOtrasFuentes").val("");
+    if($("#CrearContrato_TipoContrato").val()=="ContratoDirecto"){
+        CalcularSaldoTotalDirecto();
+    }else if($("#CrearContrato_TipoContrato").val()=="ContratoProceso"){
+        CalcularSaldoTotalSeleccion();
+    }
+    MostrarOtrasFuentes();
+}
+
+function MostrarOtrasFuentes() {
+    var tabla = $('#Tbl_ValorOtrasFuenta').DataTable();
+    tabla.clear().draw();
+    MontoOtraFuente = 0;
+    if(OtraFuente.length>0){
+        for (var i = 0; i < OtraFuente.length; i++) {
+            tabla.row.add([
+              '<center>'+parseInt(i+1)+'</center>',
+              '<center>'+OtraFuente[i].NombreOtraFuente+'</center>',
+              '<center>'+OtraFuente[i].MontoOtraFuente+'</center>',
+              '<center><button class="btn_transparente" onclick="EliminarOtrasFuentes(\''+i+'\')"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'
+            ]).draw(); 
+            MontoOtraFuente+= parseFloat(FormateoInversoMonto(OtraFuente[i].MontoOtraFuente));
+        }
+    }
+}
+
+
+function EliminarOtrasFuentes(ParamPos) {
+    
+    OtraFuente.splice(ParamPos, 1);
+    MostrarOtrasFuentes();
+
+}
+
+function CargarMunicipioEspera(IdDepto, id_input, callback) {
+    var depto = $("#" + IdDepto).val();
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data: { opcion: "CargarMunicipio", depto: depto },
+        success: function (respuesta) {
+            var datos = JSON.parse(respuesta);
+            var html = '<option value="Ninguno">Seleccione</option>';
+            if (datos.length > 0) {
+                for (var i = 0; i < datos.length; i++) {
+                    html += '<option RetFuente="' + datos[i].RetFuente + '" value="' + datos[i].Id + '">' + datos[i].Nombre + '</option>';
+                }
+            }
+            $("#" + id_input).html(html);
+            if (typeof callback === 'function') {
+                callback(); // Llama al callback después de cargar los datos
+            }
+        },
+        error: function () {
+            alert('Error al cargar las opciones');
+        }
+    });
+}
+
+
+
+function CargarDeptosEspera(id_input,callback) {
+
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data: { opcion: "CargarDeptos" },
+        success: function (respuesta) {
+            var datos = JSON.parse(respuesta);
+            var html = '<option value="Ninguno">Seleccione</option>';
+            if (datos.length > 0) {
+                for (var i = 0; i < datos.length; i++) {
+                    html += '<option value="' + datos[i].Id + '">' + datos[i].Nombre + '</option>';
+                }
+            }
+            $("#" + id_input).html(html);
+
+            if (typeof callback === 'function') {
+                callback(); // Llama al callback después de cargar los datos
+            }
+        },
+        error: function () {
+            window.toastr.error('Error al cargar las opciones');
+        }
+    });
+}
+
 function CargarDeptos(id_input) {
 
     $.ajax({
@@ -24,6 +155,502 @@ function CargarDeptos(id_input) {
     });
 }
 
+function GuardarPolizaContrato(){
+
+    $(".error").removeClass("error");
+    var TipoPoliza = $("#CrearContratoPoliza_TipoPoliza").val();
+    var CompañiaPoliza = $("#CrearContratoPoliza_CompañiaPoliza").val();
+    var NumeroPoliza = $("#CrearContratoPoliza_NumPoliza").val();
+    var Resp = "NO";
+
+    if(TipoPoliza=="Ninguno"){
+        $("#CrearContratoPoliza_TipoPoliza").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!CompañiaPoliza){
+        $("#CrearContratoPoliza_CompañiaPoliza").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!NumeroPoliza){
+        $("#CrearContratoPoliza_NumPoliza").addClass("error");
+        Resp = "SI";
+    }
+
+    if(Resp=="SI" || AmparosPoliza.length<1){
+
+        if(AmparosPoliza.length<1){
+            window.toastr.error("Se debe agregar al menos un(01) amparo a la póliza!");
+            return false;
+        }else{
+            window.toastr.error("Algunos Campos Obligatorios aun estan en blanco!");
+            return false;
+        }
+    }else{
+
+        var  IdContrato = $("#IdContrato").val();
+        $.ajax({
+            url: 'administracion.php',
+            type: 'POST',
+            data:{opcion:"GuardarPolizaContrato",IdContrato:IdContrato,TipoPoliza:TipoPoliza,CompañiaPoliza:CompañiaPoliza,NumeroPoliza:NumeroPoliza,AmparosPoliza:AmparosPoliza },
+            success: function(respuesta){
+               window.Swal.fire("Exito!","Póliza agregada Exitosamente!","success");
+            },
+            error: function(){
+                window.toastr.error('Error al cargar las opciones');
+            }
+        });
+    }
+}
+
+function MostrarSeccionPoliza(Par_Tipo) {
+    if(Par_Tipo==1){
+        $("#AddPoliza").show();
+        $("#MostrarPoliza").hide();
+    }else{
+        $("#MostrarPoliza").show();
+        $("#AddPoliza").hide(); 
+        CargarPolizasContrato(); 
+    }
+}
+
+
+function CargarPolizasContrato(){
+    var  IdContrato = $("#IdContrato").val();
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data:{opcion:"CargarPolizasContrato",IdContrato:IdContrato },
+        success: function(respuesta){
+            var tabla = $('#Tbl_Lista_Poliza').DataTable();
+            tabla.clear().draw();
+            var datos = JSON.parse(respuesta);
+            Polizas = [];
+            if(datos.length>0){
+                for (var i = 0; i < datos.length; i++) {
+                    Polizas.push({"Id":datos[i]['Id'],"CompañiaPoliza":datos[i]['Compania_Poliza'],"Numero_Poliza":datos[i]['Numero_Poliza'],"TipoPoliza":datos[i]['TipoPoliza'],"Amparos":datos[i]['Amparos']});
+
+                    tabla.row.add([
+                      '<center>'+parseInt(i+1)+'</center>',
+                      '<center>'+datos[i].TipoPoliza+'</center>',
+                      '<center>'+datos[i].Compania_Poliza+'</center>',
+                      '<center>'+datos[i].Numero_Poliza+'</center>',
+                      '<center><button class="btn_transparente" onclick="VerAmparosPolizaContrato(\''+datos[i].Id+'\')"><i class="fa-solid fa-table-list fa-2xs"></i></button></center>',
+                      '<center><button class="btn_transparente" title onclick="EliminarPolizaContrato(\''+datos[i].Id+'\')"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'
+                    ]).draw();
+                }
+            }
+        },error: function(){
+            window.toastr.error('Error al cargar las opciones');
+        }
+    });
+}
+
+function FiltrarResultadosGeneralContraros(){
+    var Vigencia = $("#ResumenGenContr_Vigencia").val() || "NO";
+    var Modalidades = $("#ResumenGenContr_Modalidad").val() || "NO";
+    var TipoContrato = $("#ResumenGenContr_TipoContrato").val() || "NO";
+    var Direccion = $("#ResumenGenContr_Direc").val() || "NO";
+    var Proyecto = $("#ResumenGenContr_AreaProyecto").val() || "NO";
+    var Supervisor = $("#ResumenGenContr_Supervisor").val() || "NO";
+    var EstadoContrato = $("#ResumenGenContr_EstadoContrato").val() || "NO";
+    var FechaIniFirma = $("#ResumenGenContr_FechaIniFirmaContrato").val() || "NO";
+    var FechaFinFirma = $("#ResumenGenContr_FechaFinFirmaContrato").val() || "NO";
+    var FechaIniEjec = $("#ResumenGenContr_FechaIniEjecContrato").val() || "NO";
+    var FechaFinEjec = $("#ResumenGenContr_FechaFinEjecContrato").val() || "NO";
+
+    $.ajax({
+        url: '../administracion.php',
+        type: 'POST',
+        data:{opcion:"FiltrarResultadosGeneralContraros",  Vigencia:Vigencia,Modalidades:Modalidades, TipoContrato:TipoContrato,Direccion:Direccion,Proyecto:Proyecto,Supervisor:Supervisor , EstadoContrato:EstadoContrato , FechaIniFirma: FechaIniFirma , FechaFinFirma: FechaFinFirma , FechaIniEjec:FechaIniEjec,FechaFinEjec:FechaFinEjec },
+        success: function(respuesta){
+            var tabla = $('#Tbl_ResumenGenContr_Reporte_Total').DataTable();
+            tabla.clear().draw();
+            var datos = JSON.parse(respuesta);
+            Contratos = [];
+            if(datos.length>0){
+                $("#DivResumenGenContr_Reporte_Total").show();
+                for (var i = 0; i < datos.length; i++) {
+                    Contratos.push({"CONTRATO_NUMERO_VIVA":datos[i]['CONTRATO_NUMERO_VIVA'],"ROL_JURIDICO":datos[i]['ROL_JURIDICO'],"ROL_LOGISTICO":datos[i]['ROL_LOGISTICO'],"ROL_TECNICO":datos[i]['ROL_TECNICO'],"TipoModalidad":datos[i]['TipoModalidad'],"TipoContrato":datos[i]['TipoContrato'],"ContratanteNombre":datos[i]['ContratanteNombre'],"ContratanteIdentificacion":datos[i]['ContratanteIdentificacion'],"DigitoVerificacion":datos[i]['DigitoVerificacion'],"OBJETO_CONTRATO":datos[i]['OBJETO_CONTRATO'],"APORTES_ESPECIE_VIVA":formatearMonto (datos[i]['APORTES_ESPECIE_VIVA']),"APORTES_RECURSOS_VIVA":formatearMonto (datos[i]['APORTES_RECURSOS_VIVA']),"APORTES_ESPECIE_MPIO":formatearMonto (datos[i]['APORTES_ESPECIE_MPIO']),"APORTES_RECURSOS_MPIO":formatearMonto (datos[i]['APORTES_RECURSOS_MPIO']),"OtrasFuentes":formatearMonto(datos[i]['OtrasFuentes']),"NombreOtrasFuentes":datos[i]['NombreOtrasFuentes'],"Segmento":datos[i]['Segmento'],"PlazoDias":datos[i]['PlazoDias'],"Direccion":datos[i]['Direccion'],"Area_Proceso":datos[i]['Area_Proceso'],"ORDENADOR_GASTO":datos[i]['ORDENADOR_GASTO'],"Supervisores":datos[i]['Supervisores'],"FECHA_CONTRATO":datos[i]['FECHA_CONTRATO'],"FECHA_INI":datos[i]['FECHA_INI'],"FECHA_FIN":datos[i]['FECHA_FIN'],"ESTADO_CONTRATO":datos[i]['ESTADO_CONTRATO'],"FECHA_PUBLICACION_SECOP":datos[i]['FECHA_PUBLICACION_SECOP'],"LINK_PUBLICACION_SECOP":datos[i]['LINK_PUBLICACION_SECOP'],"FECHA_PUBLICACION_GEST_TRANS":datos[i]['FECHA_PUBLICACION_GEST_TRANS'],"TOTAL_APORTES":formatearMonto(datos[i]['TOTAL_APORTES'])});
+                    tabla.row.add([
+                      '<center><b>'+parseInt(i+1)+'</b></center>',
+                      '<center>'+datos[i]['CONTRATO_NUMERO_VIVA']+'</center>',
+                      '<center>'+datos[i]['ROL_JURIDICO']+'</center>',
+                      '<center>'+datos[i]['ROL_LOGISTICO']+'</center>',
+                      '<center>'+datos[i]['ROL_TECNICO']+'</center>',
+                      '<center>'+datos[i]['TipoContrato']+'</center>',
+                      '<center>'+datos[i]['TipoModalidad']+'</center>',
+                      '<center>'+datos[i]['ContratanteNombre']+'</center>',
+                      '<center>'+datos[i]['ContratanteIdentificacion']+'</center>',
+                      '<center>'+datos[i]['DigitoVerificacion']+'</center>',
+                      '<center>'+datos[i]['OBJETO_CONTRATO']+'</center>',
+                      '<center>'+formatearMonto(datos[i]['TOTAL_APORTES'])+'</center>',
+                      '<center>'+formatearMonto(datos[i]['APORTES_RECURSOS_VIVA'])+'</center>',
+                      '<center>'+formatearMonto(datos[i]['APORTES_ESPECIE_VIVA'])+'</center>',
+                      '<center>'+formatearMonto(datos[i]['APORTES_RECURSOS_MPIO'])+'</center>',
+                      '<center>'+formatearMonto(datos[i]['APORTES_ESPECIE_MPIO'])+'</center>',
+                      '<center>'+formatearMonto(datos[i]['OtrasFuentes'])+'</center>',
+                      '<center>'+datos[i]['NombreOtrasFuentes']+'</center>',
+                      '<center>'+datos[i]['Segmento']+'</center>',
+                      '<center>'+datos[i]['PlazoDias']+'</center>',
+                      '<center>'+datos[i]['Direccion']+'</center>',
+                      '<center>'+datos[i]['Area_Proceso']+'</center>',
+                      '<center>'+datos[i]['ORDENADOR_GASTO']+'</center>',
+                      '<center>'+datos[i]['Supervisores']+'</center>',
+                      '<center>'+datos[i]['FECHA_CONTRATO']+'</center>',
+                      '<center>'+datos[i]['FECHA_INI']+'</center>',
+                      '<center>'+datos[i]['FECHA_FIN']+'</center>',
+                      '<center>'+datos[i]['ESTADO_CONTRATO']+'</center>',
+                      '<center>'+datos[i]['FECHA_PUBLICACION_SECOP']+'</center>',
+                      '<center>'+datos[i]['LINK_PUBLICACION_SECOP']+'</center>',
+                      '<center>'+datos[i]['FECHA_PUBLICACION_GEST_TRANS']+'</center>'
+                  ]).draw();
+                }
+            }
+        },error: function(){
+            window.toastr.error('Error al cargar las opciones');
+        }
+    });
+}
+
+
+function GenerarResultadosGeneralContraros() {
+    var workbook = XLSX.utils.book_new();
+    var sheetData = [
+        ['#', 'NÚMERO DE CONTRATO', 'ROL JURÍDICO ', 'ROL LOGÍSTICO', 'ROL TÉCNICO', 'TIPO DE CONTRATO', 'MODALIDAD', 'CONTRATISTA','IDENTIFICACIÓN','Digito de Verificación','OBJETO','TOTAL DE APORTES','APORTES VIVA RECURSO','APORTES VIVA ESPECIE','APORTES MUNICIPIO RECURSO','APORTES MUNICIPIO ESPECIE','VALOR OTRAS FUENTES','NOMBRE(S) OTRAS FUENTES','SEGMENTO','PLAZO','DIRECCIÓN O JEFATURA','AREA O PROYECTO','ORDENADOR DEL GASTO','SUPERVISOR','FECHA DEL CONTRATO','FECHA DE INICIO','FECHA DE TERMINACIÓN','ESTADO','Fecha Publicación en Secop','Link Publicación en Secop','PUBLICADOS EN GESTIÓN TRANSPARENTE']
+    ];
+
+    for (var i = 0; i < Contratos.length; i++) {
+        var rowData = [
+            parseInt(i+1),
+            Contratos[i]['CONTRATO_NUMERO_VIVA'],
+            Contratos[i]['ROL_JURIDICO'],
+            Contratos[i]['ROL_LOGISTICO'],
+            Contratos[i]['ROL_TECNICO'],
+            Contratos[i]['TipoContrato'],
+            Contratos[i]['TipoModalidad'],
+            Contratos[i]['ContratanteNombre'],
+            Contratos[i]['ContratanteIdentificacion'],
+            Contratos[i]['DigitoVerificacion'],
+            Contratos[i]['OBJETO_CONTRATO'],
+            Contratos[i]['TOTAL_APORTES'],
+            Contratos[i]['APORTES_RECURSOS_VIVA'],
+            Contratos[i]['APORTES_ESPECIE_VIVA'],
+            Contratos[i]['APORTES_RECURSOS_MPIO'],
+            Contratos[i]['APORTES_ESPECIE_MPIO'],
+            Contratos[i]['OtrasFuentes'],
+            Contratos[i]['NombreOtrasFuentes'],
+            Contratos[i]['Segmento'],
+            Contratos[i]['PlazoDias'],
+            Contratos[i]['Direccion'],
+            Contratos[i]['Area_Proceso'],
+            Contratos[i]['ORDENADOR_GASTO'],
+            Contratos[i]['Supervisores'],
+            Contratos[i]['FECHA_CONTRATO'],
+            Contratos[i]['FECHA_INI'],
+            Contratos[i]['FECHA_FIN'],
+            Contratos[i]['ESTADO_CONTRATO'],
+            Contratos[i]['FECHA_PUBLICACION_SECOP'],
+            Contratos[i]['LINK_PUBLICACION_SECOP'],
+            Contratos[i]['FECHA_PUBLICACION_GEST_TRANS']
+        ];
+        sheetData.push(rowData);
+    }
+
+    var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Resumen');
+    var workbookOutput = XLSX.write(workbook, { type: 'binary' });
+    var blob = new Blob([s2ab(workbookOutput)], { type: 'application/octet-stream' });
+    saveAs(blob, 'ResumenGeneralDeContrato.xlsx');       
+}
+
+
+function CargarPolizasContrato(){
+    var  IdContrato = $("#IdContrato").val();
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data:{opcion:"CargarPolizasContrato",IdContrato:IdContrato },
+        success: function(respuesta){
+            var tabla = $('#Tbl_Lista_Poliza').DataTable();
+            tabla.clear().draw();
+            var datos = JSON.parse(respuesta);
+            Polizas = [];
+            if(datos.length>0){
+                for (var i = 0; i < datos.length; i++) {
+                    Polizas.push({"Id":datos[i]['Id'],"CompañiaPoliza":datos[i]['Compania_Poliza'],"Numero_Poliza":datos[i]['Numero_Poliza'],"TipoPoliza":datos[i]['TipoPoliza'],"Amparos":datos[i]['Amparos']});
+
+                    tabla.row.add([
+                      '<center>'+parseInt(i+1)+'</center>',
+                      '<center>'+datos[i].TipoPoliza+'</center>',
+                      '<center>'+datos[i].Compania_Poliza+'</center>',
+                      '<center>'+datos[i].Numero_Poliza+'</center>',
+                      '<center><button class="btn_transparente" onclick="VerAmparosPolizaContrato(\''+datos[i].Id+'\')"><i class="fa-solid fa-table-list fa-2xs"></i></button></center>',
+                      '<center><button class="btn_transparente" title onclick="EliminarPolizaContrato(\''+datos[i].Id+'\')"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'
+                    ]).draw();
+                }
+            }
+        },error: function(){
+            window.toastr.error('Error al cargar las opciones');
+        }
+    });
+}
+
+function VerAmparosPolizaContrato(ParId){
+    var tabla = $('#Tbl_VerAmparosPoliza').DataTable();
+    tabla.clear().draw();
+    if(Polizas.length>0){
+        for (var i = 0; i < Polizas.length; i++) {
+            if(Polizas[i].Id == ParId){
+                for (var a = 0; a < Polizas[i]['Amparos'].length;a++) {
+                    tabla.row.add([
+                      '<center>'+parseInt(i+1)+'</center>',
+                      '<center>'+Polizas[i]['Amparos'][a].TipoAmparo+'</center>',
+                      '<center>'+Polizas[i]['Amparos'][a].Fecha_Inicio_Amparo+'</center>',
+                      '<center>'+Polizas[i]['Amparos'][a].Fecha_Fin_Amparo+'</center>',
+                      '<center>'+formatearMonto( Polizas[i]['Amparos'][a].Cuantia_Amparo) +'</center>',
+                      '<center><button title="Eliminar Amparo" data-toggle="tooltip" data-placement="top" class="btn_transparente" onclick="EliminarAmparoPolizaContrato(\''+Polizas[i]['Amparos'][a].Id+'\',\''+ParId+'\')"><i class="fa-regular fa-trash-can fa-2xs"></i></button></center>'
+                    ]).draw();
+                }
+            }
+        }
+    }
+    $('[data-toggle="tooltip"]').tooltip();
+    $("#btn_Modal_VerAmparosPolizas").click();
+}
+
+function EliminarPolizaContrato(ParId){
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Seguro de eliminar la Póliza seleccionada? ¡Esta acción no se podrá revertir!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí',
+      cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'administracion.php',
+                type: 'POST',
+                data:{opcion:"EliminarPolizaContrato",ParId:ParId },
+                success: function(respuesta){
+                    window.Swal.fire("Exito!","Se elimina la póliza exitosamente!","success");
+                    CargarPolizasContrato();
+                },error: function(){
+                    window.toastr.error('Error al cargar las opciones');
+                }
+            });
+        }
+    });
+}
+
+function EliminarAmparoPolizaContrato(ParId,PolizaId){
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Seguro de eliminar el amparo seleccionado? ¡Esta acción no se podrá revertir!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí',
+      cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: 'administracion.php',
+                type: 'POST',
+                data:{opcion:"EliminarAmparoPolizaContrato",ParId:ParId },
+                success: function(respuesta){
+                    window.Swal.fire("Exito!","Se elimina el amparo exitosamente!","success");
+                    CargarPolizasContrato();
+                    VerAmparosPolizaContrato(PolizaId);
+                },error: function(){
+                    window.toastr.error('Error al cargar las opciones');
+                }
+            });
+        }
+    });
+}
+
+
+function LimpiarFormularioPoliza(){
+    $("#CrearContratoPoliza_TipoPoliza").val("Ninguno");
+    $("#CrearContratoPoliza_CompañiaPoliza").val("");
+    $("#CrearContratoPoliza_NumPoliza").val("");
+    $("#CrearContratoPoliza_TipoAmparo").val("Ninguno");
+    $("#CrearContratoPoliza_FechaIniAmparo").val("");
+    $("#CrearContratoPoliza_FechaFinAmparo").val("");
+    $("#CrearContratoPoliza_CuantiaAmparo").val("");
+    AmparosPoliza =[];
+    ActualizarAmparosPolizas();
+
+}
+
+function DesertarContrato(){
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Seguro de declarar Desierto el contrato/proceso ? ¡Esta acción no se podrá revertir!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí',
+      cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $("#btn_Modal_DatosDesertarContrato").click();
+        }
+    });
+}
+
+function Confirmardesertar() {
+    var  IdContrato = $("#IdContrato").val();
+    var  Motivo = $("#CargarDatosDesertar_MotivoAnular").val();
+    var  FechaAnular = $("#CargarDatosDesertar_MotivoAnular").val();
+    if(!Motivo || !FechaAnular){
+        window.toastr.error("Tanto el Motivo como la Fecha son obligatorios, intente de nuevo!");
+        return false;
+    }else{
+
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: '¿Confirma declarar Desierto el contrato/proceso? ¡Esta acción no se podrá revertir!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí',
+          cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: 'administracion.php',
+                    type: 'POST',
+                    data:{opcion:"DesertarContrato",IdContrato:IdContrato , Motivo:Motivo , FechaAnular:FechaAnular },
+                    success: function(respuesta){
+                        window.Swal.fire("Exito!","Se declaró Desierto el contrato/proceso exitosamente!","success");
+                        $(".ModalAdicionarInfoCont .modal-footer .btn-secondary").click();
+                    },error: function(){
+                        window.toastr.error('Error al cargar las opciones');
+                    }
+                });
+            }  
+        });
+    }
+}
+
+
+
+function AnularContrato(){
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Seguro de anular el contrato/proceso ? ¡Esta acción no se podrá revertir!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí',
+      cancelButtonText: 'No'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $("#btn_Modal_DatosAnularContrato").click();
+        }
+    });
+}
+
+function ConfirmarAnular() {
+ 
+    var  IdContrato = $("#IdContrato").val();
+    var  Motivo = $("#CargarDatosAnular_MotivoAnular").val();
+    var  FechaAnular = $("#CargarDatosAnular_FechaAnular").val();   
+    if(!Motivo || !FechaAnular){
+        window.toastr.error("Tanto el Motivo como la Fecha son obligatorios, intente de nuevo!");
+        return false;
+    }else{    
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: '¿Confirma la anulación del contrato/proceso ? ¡Esta acción no se podrá revertir!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sí',
+          cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.isConfirmed) {        
+                $.ajax({
+                    url: 'administracion.php',
+                    type: 'POST',
+                    data:{opcion:"AnularContrato",IdContrato:IdContrato , Motivo:Motivo , FechaAnular:FechaAnular },
+                    success: function(respuesta){
+                        window.Swal.fire("Exito!","Se elimina el contrato/proceso exitosamente!","success");
+                        $(".ModalAdicionarInfoCont .modal-footer .btn-secondary").click();
+                    },error: function(){
+                        window.toastr.error('Error al cargar las opciones');
+                    }
+                });
+            }
+        });
+    }
+}
+
+
+function ActualizarContrato() {
+    
+    var CrearContratoAdicionar_FechaInicio = $("#CrearContratoAdicionar_FechaInicio").val();
+    var CrearContratoAdicionar_FechaFin = $("#CrearContratoAdicionar_FechaFin").val();
+    var CrearContratoAdicionar_CompromisoPresupuestal = $("#CrearContratoAdicionar_CompromisoPresupuestal").val();
+    var CrearContratoAdicionar_FechaCompromisoPresupuestal = $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").val();
+    var CrearContratoAdicionar_MontoCompromisoPresupuestal = FormateoInversoMonto($("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val());
+    var CrearContratoAdicionar_OrdenadorGasto = $("#CrearContratoAdicionar_OrdenadorGasto").val();
+    var CrearContratoAdicionar_TipoGasto = $("#CrearContratoAdicionar_TipoGasto").val();
+    var CrearContratoAdicionar_FechaPubSecop = $("#CrearContratoAdicionar_FechaPubSecop").val();
+    var CrearContratoAdicionar_linkPubSecop = $("#CrearContratoAdicionar_linkPubSecop").val();
+    var CrearContratoAdicionar_FechaPubGestTransp = $("#CrearContratoAdicionar_FechaPubGestTransp").val();
+    var CrearContratoAdicionar_FechaTransCad = $("#CrearContratoAdicionar_FechaTransCad").val();
+
+
+    if ((CrearContratoAdicionar_FechaInicio || CrearContratoAdicionar_FechaFin) && !(CrearContratoAdicionar_FechaInicio && CrearContratoAdicionar_FechaFin)) {
+        window.toastr.error("Debe ingresar tanto la fecha de inicio como la fecha de fin, no se admite una sola!");
+        return false;
+    }
+
+
+    if ((CrearContratoAdicionar_FechaPubSecop || CrearContratoAdicionar_linkPubSecop) && !(CrearContratoAdicionar_FechaPubSecop && CrearContratoAdicionar_linkPubSecop)) {
+        window.toastr.error("Se debe ingresar tanto el Link de publiación como la Fecha!");
+        return false;
+
+    }
+
+    if ((CrearContratoAdicionar_CompromisoPresupuestal || CrearContratoAdicionar_FechaCompromisoPresupuestal || CrearContratoAdicionar_MontoCompromisoPresupuestal) && !(CrearContratoAdicionar_CompromisoPresupuestal && CrearContratoAdicionar_FechaCompromisoPresupuestal && CrearContratoAdicionar_MontoCompromisoPresupuestal)) {
+        window.toastr.error("Se debe ingresar tanto el Link de publiación como la Fecha!");
+        return false;
+
+    }
+
+    var IdContrato = $("#IdContrato").val()
+     $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data:{opcion:"ActualizarContrato",IdContrato:IdContrato,CrearContratoAdicionar_FechaInicio:CrearContratoAdicionar_FechaInicio,CrearContratoAdicionar_FechaFin:CrearContratoAdicionar_FechaFin,CrearContratoAdicionar_CompromisoPresupuestal:CrearContratoAdicionar_CompromisoPresupuestal,CrearContratoAdicionar_FechaCompromisoPresupuestal:CrearContratoAdicionar_FechaCompromisoPresupuestal,CrearContratoAdicionar_MontoCompromisoPresupuestal:CrearContratoAdicionar_MontoCompromisoPresupuestal,CrearContratoAdicionar_FechaPubSecop:CrearContratoAdicionar_FechaPubSecop,CrearContratoAdicionar_linkPubSecop:CrearContratoAdicionar_linkPubSecop,CrearContratoAdicionar_FechaPubGestTransp:CrearContratoAdicionar_FechaPubGestTransp,CrearContratoAdicionar_FechaTransCad:CrearContratoAdicionar_FechaTransCad,CrearContratoAdicionar_OrdenadorGasto:CrearContratoAdicionar_OrdenadorGasto,CrearContratoAdicionar_TipoGasto:CrearContratoAdicionar_TipoGasto},
+        success: function(respuesta){
+           window.Swal.fire("Exito!","Información Actualizada satisfactoriamente!","success");
+        }
+    });
+}
+
+
+
+
+
 function GuardarInfoAdicionalContrato(){
 
     $(".error").removeClass("error");
@@ -31,69 +658,20 @@ function GuardarInfoAdicionalContrato(){
     var CrearContratoAdicionar_FechaFin = $("#CrearContratoAdicionar_FechaFin").val();
     var CrearContratoAdicionar_FechaContrato = $("#CrearContratoAdicionar_FechaContrato").val();
     var CrearContratoAdicionar_CompromisoPresupuestal = $("#CrearContratoAdicionar_CompromisoPresupuestal").val();
-    var CrearContratoAdicionar_FechaCompromisoPresupuestal = $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").val();
-    var CrearContratoAdicionar_MontoCompromisoPresupuestal = $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val();
     var CrearContratoAdicionar_OrdenadorGasto = $("#CrearContratoAdicionar_OrdenadorGasto").val();
     var CrearContratoAdicionar_TipoGasto = $("#CrearContratoAdicionar_TipoGasto").val();
     var CrearContratoAdicionar_FechaPubSecop = $("#CrearContratoAdicionar_FechaPubSecop").val();
     var CrearContratoAdicionar_linkPubSecop = $("#CrearContratoAdicionar_linkPubSecop").val();
     var CrearContratoAdicionar_FechaPubGestTransp = $("#CrearContratoAdicionar_FechaPubGestTransp").val();
     var CrearContratoAdicionar_TipoPersonaContratar = $("#CrearContratoAdicionar_TipoPersonaContratar").val();
+    var CrearContratoAdicionar_FechaTransCad = $("#CrearContratoAdicionar_FechaTransCad").val();
+    var CrearContratoAdicionar_FechaCompromisoPresupuestal = $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").val();
+    var CrearContratoAdicionar_MontoCompromisoPresupuestal = $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val();
     var Resp = "NO";
 
-    if(!CrearContratoAdicionar_FechaInicio){
-        $("#CrearContratoAdicionar_FechaInicio").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_FechaFin){
-        $("#CrearContratoAdicionar_FechaFin").addClass("error");
-        Resp = "SI";
-    }
 
     if(!CrearContratoAdicionar_FechaContrato){
         $("#CrearContratoAdicionar_FechaContrato").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_CompromisoPresupuestal){
-        $("#CrearContratoAdicionar_CompromisoPresupuestal").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_FechaCompromisoPresupuestal){
-        $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_MontoCompromisoPresupuestal){
-        $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_OrdenadorGasto){
-        $("#CrearContratoAdicionar_OrdenadorGasto").addClass("error");
-        Resp = "SI";
-    }
-
-    if(CrearContratoAdicionar_TipoGasto=="Ninguno"){
-        $("#CrearContratoAdicionar_TipoGasto").addClass("error");
-        Resp = "SI";
-    }
-
-
-    if(!CrearContratoAdicionar_FechaPubSecop){
-        $("#CrearContratoAdicionar_FechaPubSecop").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_linkPubSecop){
-        $("#CrearContratoAdicionar_linkPubSecop").addClass("error");
-        Resp = "SI";
-    }
-
-    if(!CrearContratoAdicionar_FechaPubGestTransp){
-        $("#CrearContratoAdicionar_FechaPubGestTransp").addClass("error");
         Resp = "SI";
     }
 
@@ -102,36 +680,63 @@ function GuardarInfoAdicionalContrato(){
         Resp = "SI";
     }
 
-
     if(Resp=="SI"){
-        window.Swal.fire("Error!","Algunos campos obligatorios se encuentran vacios!");
+        window.Swal.fire("Error!","Algunos campos obligatorios se encuentran vacios!","error");
         return false;
     }else{
-        var  IdContrato = $("#IdContrato").val();
-        $.ajax({
-            url: 'administracion.php',
-            type: 'POST',
-            data:{opcion:"GuardarInfoAdicionalContrato",IdContrato:IdContrato,CrearContratoAdicionar_FechaInicio:CrearContratoAdicionar_FechaInicio,CrearContratoAdicionar_FechaFin:CrearContratoAdicionar_FechaFin,CrearContratoAdicionar_FechaContrato:CrearContratoAdicionar_FechaContrato , CrearContratoAdicionar_CompromisoPresupuestal:CrearContratoAdicionar_CompromisoPresupuestal , CrearContratoAdicionar_FechaCompromisoPresupuestal:CrearContratoAdicionar_FechaCompromisoPresupuestal,CrearContratoAdicionar_MontoCompromisoPresupuestal:CrearContratoAdicionar_MontoCompromisoPresupuestal, CrearContratoAdicionar_OrdenadorGasto:CrearContratoAdicionar_OrdenadorGasto, CrearContratoAdicionar_TipoGasto:CrearContratoAdicionar_TipoGasto , CrearContratoAdicionar_FechaPubSecop:CrearContratoAdicionar_FechaPubSecop , CrearContratoAdicionar_linkPubSecop:CrearContratoAdicionar_linkPubSecop , CrearContratoAdicionar_FechaPubGestTransp:CrearContratoAdicionar_FechaPubGestTransp,ContratistasDirecto:ContratistasDirecto,CrearContratoAdicionar_TipoPersonaContratar:CrearContratoAdicionar_TipoPersonaContratar,SupervisoresContrato:SupervisoresContrato },
-            success: function(respuesta){
+        if(!ContratistasDirecto.length>0){
+            
+            window.Swal.fire("Error!","Debe agregar al menos un contratista!","error");
+            return false;
+        }else{
+            var  IdContrato = $("#IdContrato").val();
+            $.ajax({
+                url: 'administracion.php',
+                type: 'POST',
+                data:{
+                    opcion:"GuardarInfoAdicionalContrato"
+                    ,IdContrato:IdContrato
+                    ,CrearContratoAdicionar_FechaInicio:CrearContratoAdicionar_FechaInicio
+                    ,CrearContratoAdicionar_FechaFin:CrearContratoAdicionar_FechaFin
+                    ,CrearContratoAdicionar_FechaContrato:CrearContratoAdicionar_FechaContrato
+                    ,CrearContratoAdicionar_CompromisoPresupuestal:CrearContratoAdicionar_CompromisoPresupuestal 
+                    ,CrearContratoAdicionar_FechaCompromisoPresupuestal:CrearContratoAdicionar_FechaCompromisoPresupuestal
+                    ,CrearContratoAdicionar_MontoCompromisoPresupuestal:CrearContratoAdicionar_MontoCompromisoPresupuestal
+                    ,CrearContratoAdicionar_OrdenadorGasto:CrearContratoAdicionar_OrdenadorGasto
+                    ,CrearContratoAdicionar_TipoGasto:CrearContratoAdicionar_TipoGasto 
+                    ,CrearContratoAdicionar_FechaPubSecop:CrearContratoAdicionar_FechaPubSecop 
+                    ,CrearContratoAdicionar_linkPubSecop:CrearContratoAdicionar_linkPubSecop 
+                    ,CrearContratoAdicionar_FechaPubGestTransp:CrearContratoAdicionar_FechaPubGestTransp
+                    ,ContratistasDirecto:ContratistasDirecto
+                    ,CrearContratoAdicionar_TipoPersonaContratar:CrearContratoAdicionar_TipoPersonaContratar
+                    ,SupervisoresContrato:SupervisoresContrato
+                    ,CrearContratoAdicionar_FechaTransCad:CrearContratoAdicionar_FechaTransCad 
+                },
+                success: function(respuesta){
 
-               window.Swal.fire("Información de contrato agregado satisfactoriamente!");
-               $("#CrearContratoAdicionar_FechaInicio").attr("readonly","true");
-               $("#CrearContratoAdicionar_FechaFin").attr("readonly","true");
-               $("#CrearContratoAdicionar_FechaContrato").attr("readonly","true");
-               $("#CrearContratoAdicionar_CompromisoPresupuestal").attr("readonly","true");
-               $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").attr("readonly","true");
-               $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").attr("readonly","true");
-               $("#CrearContratoAdicionar_OrdenadorGasto").attr("readonly","true");
-               $("#CrearContratoAdicionar_TipoGasto").attr("readonly","true");
-               $("#CrearContratoAdicionar_FechaPubSecop").attr("readonly","true");
-               $("#CrearContratoAdicionar_linkPubSecop").attr("readonly","true");
-               $("#CrearContratoAdicionar_FechaPubGestTransp").attr("readonly","true");
-               $("#CrearContratoAdicionar_TipoPersonaContratar").attr("readonly","true");
-            },
-            error: function(){
-                window.toastr.error('Error al cargar las opciones');
-            }
-        });
+                   window.Swal.fire("Exito","Información de contrato agregado satisfactoriamente!","success");
+                   $("#btn_Celebrar").hide();
+                   $("#btn_anular").hide();
+                   $("#btn_desertar").show();
+                   $("#CrearContratoAdicionar_FechaInicio").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaFin").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaContrato").attr("readonly","true");
+                   $("#CrearContratoAdicionar_CompromisoPresupuestal").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").attr("readonly","true");
+                   $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").attr("readonly","true");
+                   $("#CrearContratoAdicionar_OrdenadorGasto").attr("readonly","true");
+                   $("#CrearContratoAdicionar_TipoGasto").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaPubSecop").attr("readonly","true");
+                   $("#CrearContratoAdicionar_linkPubSecop").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaPubGestTransp").attr("readonly","true");
+                   $("#CrearContratoAdicionar_TipoPersonaContratar").attr("readonly","true");
+                   $("#CrearContratoAdicionar_FechaTransCad").attr("readonly","true");
+                },
+                error: function(){
+                    window.toastr.error('Error al cargar las opciones');
+                }
+            });
+        }
     }
 }
 
@@ -155,7 +760,7 @@ function CambiarTipoContrato(){
         $("#FormContratoProceso").show(500);
         $("#FormContratoDirecto").hide(500);
         $("#FormTipoContrato").hide(500);
-        CargarDeptos("CrearContratoSeleccion_dpto");   
+        CargarDeptos("CrearContratoSeleccion_dpto");  
     }
 }
 
@@ -189,7 +794,7 @@ function CargarMunicipio(IdDepto,id_input){
     });
 }
 
-function formatearMonto(monto) {
+/*function formatearMonto(monto) {
   // Convertir el monto a número y verificar si es válido
   const montoNum = parseFloat(monto);
   if (isNaN(montoNum)) {
@@ -200,53 +805,74 @@ function formatearMonto(monto) {
   const montoFormateado = '$' + montoNum.toLocaleString();
 
   return montoFormateado;
+}*/
+
+function formatearMonto(monto) {
+
+      if (isNaN(monto) || monto==null) {
+        return '';
+      }else{
+        monto = String(monto);
+        monto = monto.replace(".00", "");
+       monto = monto.replace(/\D/g, "");
+        monto = monto.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    
+    
+      // Formatear el monto con separador de miles y símbolo del dólar
+      var montoFormateado = '$' + monto;
+    
+      return montoFormateado;
+    }
 }
 
-
 function FormateoInversoMonto(monto) {
-  if (monto.includes('$')) {
-    // Eliminar el símbolo de moneda y los separadores de miles
-    var montoSinFormato = monto.replace(/\$|,/g, '');
+    if(monto){
+      if (monto.includes('$')) {
+        // Eliminar el símbolo de moneda y los separadores de miles
+        var montoSinFormato = monto.replace(/\$|,/g, '');
 
-    // Reemplazar el separador decimal por un punto
-    montoSinFormato = montoSinFormato.replace(',', '.');
-    return montoSinFormato;
-  } else {
-    return monto;
-  }
+        // Reemplazar el separador decimal por un punto
+        montoSinFormato = montoSinFormato.replace(',', '.');
+        return montoSinFormato;
+      } else {
+        return monto;
+      }
+    }
 }
 
 
 
 
 function maquillarNumero(input) {
-  // Agregamos un listener al evento input para aplicar el maquillaje en tiempo real
-  input.addEventListener("input", function () {
-    // Obtenemos el valor actual del input y eliminamos todos los caracteres que no sean dígitos
-    let num = input.value.replace(/\D/g, "");
-    
-    // Aplicamos el separador de miles usando una expresión regular que inserta una coma cada 3 dígitos
-    num = num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    
-    // Actualizamos el valor del input con el número maquillado
-    input.value = "$" + num;
-  });
-  
-  // Agregamos un listener al evento blur para eliminar el separador de miles al leer el valor
-  input.addEventListener("blur", function () {
-    // Obtenemos el valor actual del input y eliminamos todos los caracteres que no sean dígitos
-    let num = input.value.replace(/\D/g, "");
-    
-    // Actualizamos el valor del input con el número sin separador
-    //input.value = num;
-  });
-  
-  // Agregamos una validación al evento keypress para permitir solo números
-  input.addEventListener("keypress", function (event) {
-    if (!/^\d$/.test(event.key)) {
-      event.preventDefault();
+    if(input){
+      // Agregamos un listener al evento input para aplicar el maquillaje en tiempo real
+      input.addEventListener("input", function () {
+        // Obtenemos el valor actual del input y eliminamos todos los caracteres que no sean dígitos
+        let num = input.value.replace(/\D/g, "");
+        
+        // Aplicamos el separador de miles usando una expresión regular que inserta una coma cada 3 dígitos
+        num = num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        
+        // Actualizamos el valor del input con el número maquillado
+        input.value = "$" + num;
+      });
+      
+      // Agregamos un listener al evento blur para eliminar el separador de miles al leer el valor
+      input.addEventListener("blur", function () {
+        // Obtenemos el valor actual del input y eliminamos todos los caracteres que no sean dígitos
+        let num = input.value.replace(/\D/g, "");
+        
+        // Actualizamos el valor del input con el número sin separador
+        //input.value = num;
+      });
+      
+      // Agregamos una validación al evento keypress para permitir solo números
+      input.addEventListener("keypress", function (event) {
+        if (!/^\d$/.test(event.key)) {
+          event.preventDefault();
+        }
+      });
     }
-  });
 }
 
 function SoloNumeros(event) {
@@ -260,14 +886,127 @@ function SoloNumeros(event) {
     }
 }
 
+
+
+
+
+
+function GenerarExcelGafico() {
+
+ // Crear un gráfico con Chart.js
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo'],
+                datasets: [{
+                    label: 'Ventas',
+                    data: [1000, 1200, 800],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+ // Función para generar el Excel con el gráfico
+        function generarExcel() {
+            // Capturar el gráfico como una imagen
+            html2canvas(document.getElementById('graficoContainer')).then(function(canvas) {
+                var graficoBase64 = canvas.toDataURL('image/jpeg');
+
+                // Crear un nuevo libro de Excel
+                var workbook = XLSX.utils.book_new();
+                var sheetData = [
+                    ['Mes', 'Ventas'],
+                    ['Enero', 1000],
+                    ['Febrero', 1200],
+                    ['Marzo', 800],
+                    ['Gráfico']
+                ];
+
+                // Agregar la imagen del gráfico en base64
+                sheetData.push([graficoBase64]);
+
+                // Convierte los datos en una hoja de Excel
+                var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+                // Agrega la hoja al libro de Excel
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Hoja1');
+
+                // Guardar el archivo Excel
+                XLSX.writeFile(workbook, 'archivo_excel_con_grafico.xlsx');
+            });
+        }
+
+
+   /* var workbook = XLSX.utils.book_new();
+    var sheetData = [
+        ['Descripción de Elemento', 'Unidad']
+    ];
+
+    $.ajax({
+        url: 'Proveedores.php',
+        type: 'POST',
+        data:{opcion:"TraerMpioCargaMasiva"},
+        success: function(respuesta){
+            var datos = JSON.parse(respuesta);
+            for (var i = 0; i < datos.length; i++) {
+                sheetData[0].push(datos[i].nombre);
+            }
+
+            var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'CargaMasiva');
+
+            var workbookOutput = XLSX.write(workbook, { type: 'binary' });
+            var blob = new Blob([s2ab(workbookOutput)], { type: 'application/octet-stream' });
+            saveAs(blob, 'PlantillaCarga.xlsx');
+
+        },
+        error: function(){
+             window.toastr.warning('Error al cargar las opciones');
+        }
+    });*/
+}
+
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i = 0; i < s.length; i++) {
+        view[i] = s.charCodeAt(i) & 0xFF;
+    }
+    return buf;
+}
+
+
 function CargarArchivo(){
 
     var files = []; // Array para los datos de los archivos cargados
     event.preventDefault();
-    
-    var tipo_documento = $('#CrearContrato_TipoDocumentoAdjunto').val();
-    var archivo = $('#CrearContrato_archivo')[0].files[0];
+    var tipo_contrato = $("#CrearContrato_TipoContrato").val();
+    var id = "";
+    var id2 = "";
+    if(tipo_contrato=='Contrato_BVM'){
+        id = 'CrearContratoBVM_archivo';
+        id2 = 'CrearContratoBVM_TipoDocumentoAdjunto';
+    }else if(tipo_contrato=='ContratoDirecto'){
+        id = 'CrearContratoDirect_archivo';
+        id2 = 'CrearContratoDirect__TipoDocumentoAdjunto';
+    }else if(tipo_contrato=='ContratoProceso'){
+        id = 'CrearContratoProc_archivo';
+        id2 = 'CrearContratoProces_TipoDocumentoAdjunto';
+    }
 
+    var tipo_documento = $('#'+id2).val();
+    var archivo = $('#'+id)[0].files[0];
+    var TipoNombreDoc = $('#'+id2+' option:selected').text();
     // Validar que se haya seleccionado un archivo
     if (!archivo) {
         window.toastr.error('Por favor seleccione un archivo');
@@ -285,6 +1024,7 @@ function CargarArchivo(){
     var formData = new FormData();
     formData.append('archivo', archivo);
     formData.append('tipo_documento', tipo_documento);
+    formData.append('tipo_documentoNombre', TipoNombreDoc);
     formData.append('opcion', 'upload_file');
 
     $.ajax({
@@ -299,6 +1039,7 @@ function CargarArchivo(){
             ArchivosCargados.push({
                 NombreArchivo: data[0]['Nombre'],
                 TipoDocumento: data[0]['TipoDocumento'],
+                NombreDocumento: data[0]['tipo_documentoNombre'],
                 Url: data[0]['Url'],
                 size: data[0]['size']
             });
@@ -316,8 +1057,6 @@ function CargarArchivo(){
         window.toastr.warning('Se ha producido un error al cargar el archivo');
       }
     });
-
-
 }
 
 
@@ -332,31 +1071,30 @@ function MostrarArchivosCargados() {
             tabla.row.add([
               '<center>'+parseInt(i+1)+'</center>',
               '<center>'+ArchivosCargados[i].NombreArchivo+'</center>',
-              '<center>'+ArchivosCargados[i].TipoDocumento+'</center>',
+              '<center>'+ArchivosCargados[i].NombreDocumento+'</center>',
               '<center>'+ArchivosCargados[i].size+'</center>'
             ]).draw();
         }
     }
-
     $("#But_Modal_ArchCarg").click();
 }
 
 
 function CargarTipoAdjuntoContrato(){
-
+    $(".CrearContrato_TipoDocumentoAdjunto").html("");
     $.ajax({
         url: 'administracion.php',
         type: 'POST',
         data:{opcion:"CargarTipoAdjuntoContrato"},
         success: function(respuesta){
             var datos = JSON.parse(respuesta);
-            var html = '<option value="Ninguno">Seleccione</option>';
+            var html = '<option value="Ninguno" selected="true" disabled="true">Seleccione</option>';
             if(datos.length>0){
                 for (var i = 0; i < datos.length; i++) {
                     html+='<option value="'+datos[i].Id+'">'+datos[i].Nombre+'</option>'
                 }
             }
-            $("#CrearContrato_TipoDocumentoAdjunto").html(html);
+            $(".CrearContrato_TipoDocumentoAdjunto").html(html);
         },
         error: function(){
              window.toastr.warning('Error al cargar las opciones');
@@ -364,19 +1102,131 @@ function CargarTipoAdjuntoContrato(){
     });
 }
 
-function CalcularSaldoTotalSeleccion() {
-    var AportesRecursosViva = $("#CrearContratoSeleccion_AportesVivaRecurso").val();
-    var AportesEspecieViva = $("#CrearContratoSeleccion_AportesVivaEspecie").val();
-    var AportesRecursosMpio = $("#CrearContratoSeleccion_AportesMpioRecurso").val();
-    var AportesEspecieMpio = $("#CrearContratoSeleccion_AportesMpioEspecie").val();
-    var ValorOtrasFuentes = $("#CrearContratoSeleccion_ValorOtrasFuentes").val();
+function ActualziarDatosFinancierosProcesoSeleccion() {
+    
+    var TotalAportes = $("#CargarFuentesFinanciacion_TotalAportes").val();
+    var AportesVivaEspecie = $("#CargarFuentesFinanciacion_AportesVivaEspecie").val();
+    var AportesVivaRecursos = $("#CargarFuentesFinanciacion_AportesVivaRecursos").val();
+    var AportesMpioEspecie = $("#CargarFuentesFinanciacion_AportesMpioEspecie").val();
+    var AportesMpioRecursos = $("#CargarFuentesFinanciacion_AportesMpioRecursos").val();
+   
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: '¿Deseas actualizar los datos financieros del proceso de selección? esto generará el número de contrato y no se podra reversar!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Si, Actualizar',
+      cancelButtonText: 'No'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var IdContrato = $("#IdContrato").val();
+        $.ajax({
+          url: 'administracion.php',
+          type: 'POST',
+          data: {
+            opcion: "ActualziarDatosFinancierosProcesoSeleccion",
+            TotalAportes: TotalAportes,
+            AportesVivaEspecie: AportesVivaEspecie,
+            AportesVivaRecursos: AportesVivaRecursos,
+            AportesMpioEspecie: AportesMpioEspecie,
+            AportesMpioRecursos: AportesMpioRecursos,
+            OtraFuente: OtraFuente,
+            IdContrato: IdContrato
+          },
+          success: function (respuesta) {
+            if(respuesta.trim() !="N/A"){
+                Swal.fire("Éxito!", "Se almacenan exitosamente los datos financieros del proceso, quedando registrado con el contrato número: "+respuesta, "success");
+                $("#btn_adicionar_adicional .btn_transparente").removeAttr("disabled");       
+                $("#btn_ActualizarDatosFinancierolProceso").attr("disabled","true");       
+
+            }else{
+            
+                Swal.fire({
+                    title: 'Por favor Ingrese el Número de Contrato asignado al Proceso:',
+                    input: 'text',
+                    inputAttributes: { autocapitalize: 'off' },
+                    showCancelButton: false,
+                    confirmButtonText: 'Guardar',
+                    allowOutsideClick: false, // Evitar cierre al hacer clic afuera
+                    backdrop: 'static', // Evitar cierre al hacer clic afuera
+                    allowEscapeKey: false,
+                    inputValidator: (valor) => {
+                        if (!valor) {
+                            return 'Debe ingresar un valor';
+                        }
+                    },
+                    preConfirm: (valor) => { return valor;}
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                         var IdContrato = $("#IdContrato").val();
+                        // El usuario ingresó un valor, lo usamos en la solicitud Ajax
+                        $.ajax({
+                            url: 'administracion.php',
+                            method: 'POST',
+                            data: { opcion:"GuardarNroProcesoSeleccion",NumProceso: result.value , "IdContrato":IdContrato },
+                            success: function(response) {
+                                LimpiarformularioContratos();
+                                window.Swal.fire("Exito!","El contrato por Proceso de Selección se almaceno exitosamente bajo el número: "+response+" !","success");
+                                $("#btn_adicionar_adicional .btn_transparente").removeAttr("disabled");  
+                                $("#btn_ActualizarDatosFinancierolProceso").attr("disabled","true");       
+
+                            }, error: function() {
+                                window.toastr.error("Ocurrió un error interno");
+                            }
+                        });
+                    }
+                });   
+            }
+          }, error: function () {
+            toastr.error('Error al cargar las opciones');
+          }
+        });
+      }
+    });
+} 
+
+
+function CalcularSaldoTotalSeleccion2() {
+    var AportesRecursosViva = $("#CargarFuentesFinanciacion_AportesVivaEspecie").val();
+    var AportesEspecieViva = $("#CargarFuentesFinanciacion_AportesVivaRecursos").val();
+    var AportesRecursosMpio = $("#CargarFuentesFinanciacion_AportesMpioRecursos").val();
+    var AportesEspecieMpio = $("#CargarFuentesFinanciacion_AportesMpioEspecie").val();
+    var ValorOtrasFuentes = 0;
 
     // Verificar si los campos están vacíos y asignarles el valor 0 si es el caso
     AportesRecursosViva = AportesRecursosViva ? FormateoInversoMonto(AportesRecursosViva) : 0;
     AportesEspecieViva = AportesEspecieViva ? FormateoInversoMonto(AportesEspecieViva) : 0;
     AportesRecursosMpio = AportesRecursosMpio ? FormateoInversoMonto(AportesRecursosMpio) : 0;
     AportesEspecieMpio = AportesEspecieMpio ? FormateoInversoMonto(AportesEspecieMpio) : 0;
-    ValorOtrasFuentes = ValorOtrasFuentes ? FormateoInversoMonto(ValorOtrasFuentes) : 0;
+
+    for (var i = 0; i < OtraFuente.length; i++) {
+        ValorOtrasFuentes+= parseFloat(FormateoInversoMonto( OtraFuente[i]['MontoOtraFuente']));
+    }
+
+    var total = parseFloat(AportesRecursosViva) + parseFloat(AportesEspecieViva) + parseFloat(AportesRecursosMpio) + parseFloat(AportesEspecieMpio) + parseFloat(ValorOtrasFuentes);
+    $("#CargarFuentesFinanciacion_TotalAportes").val(formatearMonto(total));
+    maquillarNumero(document.getElementById("CargarFuentesFinanciacion_TotalAportes"));
+}
+
+function CalcularSaldoTotalSeleccion() {
+    var AportesRecursosViva = $("#CrearContratoSeleccion_AportesVivaRecurso").val();
+    var AportesEspecieViva = $("#CrearContratoSeleccion_AportesVivaEspecie").val();
+    var AportesRecursosMpio = $("#CrearContratoSeleccion_AportesMpioRecurso").val();
+    var AportesEspecieMpio = $("#CrearContratoSeleccion_AportesMpioEspecie").val();
+    var ValorOtrasFuentes = 0;
+
+    // Verificar si los campos están vacíos y asignarles el valor 0 si es el caso
+    AportesRecursosViva = AportesRecursosViva ? FormateoInversoMonto(AportesRecursosViva) : 0;
+    AportesEspecieViva = AportesEspecieViva ? FormateoInversoMonto(AportesEspecieViva) : 0;
+    AportesRecursosMpio = AportesRecursosMpio ? FormateoInversoMonto(AportesRecursosMpio) : 0;
+    AportesEspecieMpio = AportesEspecieMpio ? FormateoInversoMonto(AportesEspecieMpio) : 0;
+
+    for (var i = 0; i < OtraFuente.length; i++) {
+        ValorOtrasFuentes+= parseFloat(FormateoInversoMonto( OtraFuente[i]['MontoOtraFuente']));
+    }
+
     var total = parseFloat(AportesRecursosViva) + parseFloat(AportesEspecieViva) + parseFloat(AportesRecursosMpio) + parseFloat(AportesEspecieMpio) + parseFloat(ValorOtrasFuentes);
     $("#CrearContratoSeleccion_TotalAportes").val(formatearMonto(total));
     maquillarNumero(document.getElementById("CrearContratoSeleccion_TotalAportes"));
@@ -388,14 +1238,17 @@ function CalcularSaldoTotalDirecto() {
     var AportesEspecieViva = $("#CrearContratoDirect_AportesVivaEspecie").val();
     var AportesRecursosMpio = $("#CrearContratoDirect_AportesMpioRecurso").val();
     var AportesEspecieMpio = $("#CrearContratoDirect_AportesMpioEspecie").val();
-    var ValorOtrasFuentes = $("#CrearContratoDirect_ValorOtrasFuentes").val();
+    var ValorOtrasFuentes = 0;
 
     // Verificar si los campos están vacíos y asignarles el valor 0 si es el caso
     AportesRecursosViva = AportesRecursosViva ? FormateoInversoMonto(AportesRecursosViva) : 0;
     AportesEspecieViva = AportesEspecieViva ? FormateoInversoMonto(AportesEspecieViva) : 0;
     AportesRecursosMpio = AportesRecursosMpio ? FormateoInversoMonto(AportesRecursosMpio) : 0;
     AportesEspecieMpio = AportesEspecieMpio ? FormateoInversoMonto(AportesEspecieMpio) : 0;
-    ValorOtrasFuentes = ValorOtrasFuentes ? FormateoInversoMonto(ValorOtrasFuentes) : 0;
+    for (var i = 0; i < OtraFuente.length; i++) {
+        ValorOtrasFuentes+= parseFloat(FormateoInversoMonto( OtraFuente[i]['MontoOtraFuente']));
+    }
+
     var total = parseFloat(AportesRecursosViva) + parseFloat(AportesEspecieViva) + parseFloat(AportesRecursosMpio) + parseFloat(AportesEspecieMpio) + parseFloat(ValorOtrasFuentes);
     $("#CrearContratoDirect_TotalAportes").val(formatearMonto(total));
     maquillarNumero(document.getElementById("CrearContratoDirect_TotalAportes"));
@@ -421,13 +1274,6 @@ function GuardarContratoProcesoSeleccion() {
     var FechaNroActa = $("#CrearContratoSeleccion_FechaActaComite").val();
     var ObjetoContrto = $("#CrearContratoSeleccion_ObjetoContrato").val();
     var SegmentoContrto = $("#CrearContratoSeleccion_SegmentoContrato").val();
-    var TotalAportes = $("#CrearContratoSeleccion_TotalAportes").val();
-    var AportesRecursosViva = $("#CrearContratoSeleccion_AportesVivaRecurso").val();
-    var AportesEspecieViva = $("#CrearContratoSeleccion_AportesVivaEspecie").val();
-    var AportesRecursosMpio = $("#CrearContratoSeleccion_AportesMpioRecurso").val();
-    var AportesEspecieMpio = $("#CrearContratoSeleccion_AportesMpioEspecie").val();
-    var ValorOtrasFuentes = $("#CrearContratoSeleccion_ValorOtrasFuentes").val();
-    var NombreOtrasFuentes = $("#CrearContratoSeleccion_NombreOtrasFuentes").val();
     var Proceso = $("#CrearContratoSeleccion_ProcesoPertenece").val();
     var Direccion = $("#CrearContratoSeleccion_DireccionPertenece").val()
     var DisponibilidadPresupuestal = $("#CrearContratoSeleccion_DisponibilidadPresupuestal").val();
@@ -435,31 +1281,7 @@ function GuardarContratoProcesoSeleccion() {
     var MontoDisponibilidad = $("#CrearContratoSeleccion_MontoDisponibilidad").val();
     var Resp = "NO";
 
-    if(depto=="Ninguno"){
-        $("#CrearContratoSeleccion_dpto").addClass("error");
-        Resp="SI";
-    }
-
-
-    if(mpio=="Ninguno"){
-        $("#CrearContratoSeleccion_mpio").addClass("error");
-        Resp="SI";
-    }
-
-    if(!PersonaContacto){
-        $("#CrearContratoSeleccion_PersonaContacto").addClass("error");
-        Resp="SI";
-    }
-   
-    if(!numero_contacto){
-        $("#CrearContratoSeleccion_NumeroContacto").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!correo_contacto){
-        $("#CrearContratoSeleccion_CorreoContacto").addClass("error");
-        Resp="SI";
-    } 
+    
 
     if(!rol_juridico){
         $("#CrearContratoSeleccion_RolJuridico").addClass("error");
@@ -511,41 +1333,6 @@ function GuardarContratoProcesoSeleccion() {
         Resp="SI";
     } 
 
-    if(!TotalAportes){
-        $("#CrearContratoSeleccion_TotalAportes").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesRecursosViva){
-        $("#CrearContratoSeleccion_AportesVivaRecurso").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesEspecieViva){
-        $("#CrearContratoSeleccion_AportesVivaEspecie").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesRecursosMpio){
-        $("#CrearContratoSeleccion_AportesMpioRecurso").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesEspecieMpio){
-        $("#CrearContratoSeleccion_AportesMpioEspecie").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!ValorOtrasFuentes){
-        $("#CrearContratoSeleccion_ValorOtrasFuentes").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!NombreOtrasFuentes){
-        $("#CrearContratoSeleccion_NombreOtrasFuentes").addClass("error");
-        Resp="SI";
-    } 
-
     if(Proceso=="Ninguno"){
         $("#CrearContratoSeleccion_ProcesoPertenece").addClass("error");
         Resp="SI";
@@ -576,10 +1363,48 @@ function GuardarContratoProcesoSeleccion() {
         $.ajax({
             url: 'administracion.php',
             type: 'POST',
-            data:{opcion:"GuardarContratoProcesoSeleccion",depto:depto,mpio:mpio,PersonaContacto:PersonaContacto,numero_contacto:numero_contacto,correo_contacto:correo_contacto,rol_juridico:rol_juridico,rol_logistico:rol_logistico,rol_tecnico:rol_tecnico,FechaSolicitud:FechaSolicitud,TipoContrato:TipoContrato,TipoModalidad:TipoModalidad,NroActa:NroActa,FechaNroActa:FechaNroActa,ObjetoContrto:ObjetoContrto,SegmentoContrto:SegmentoContrto,TotalAportes:FormateoInversoMonto(TotalAportes),AportesRecursosViva:FormateoInversoMonto(AportesRecursosViva),AportesEspecieViva:FormateoInversoMonto(AportesEspecieViva),AportesRecursosMpio:FormateoInversoMonto(AportesRecursosMpio),AportesEspecieMpio:FormateoInversoMonto(AportesEspecieMpio),ValorOtrasFuentes:FormateoInversoMonto(ValorOtrasFuentes),NombreOtrasFuentes:NombreOtrasFuentes,Proceso:Proceso,DisponibilidadPresupuestal:DisponibilidadPresupuestal,FechaDisponibilidadPresupuestal:FechaDisponibilidadPresupuestal,MontoDisponibilidad:FormateoInversoMonto(MontoDisponibilidad),ArchivosCargados:ArchivosCargados,tipoProcesoContratacion:$("#CrearContrato_TipoContrato").val(),Direccion:Direccion},
+            data:{opcion:"GuardarContratoProcesoSeleccion",depto:depto,mpio:mpio,PersonaContacto:PersonaContacto,numero_contacto:numero_contacto,correo_contacto:correo_contacto,rol_juridico:rol_juridico,rol_logistico:rol_logistico,rol_tecnico:rol_tecnico,FechaSolicitud:FechaSolicitud,TipoContrato:TipoContrato,TipoModalidad:TipoModalidad,NroActa:NroActa,FechaNroActa:FechaNroActa,ObjetoContrto:ObjetoContrto,SegmentoContrto:SegmentoContrto,Proceso:Proceso,DisponibilidadPresupuestal:DisponibilidadPresupuestal,FechaDisponibilidadPresupuestal:FechaDisponibilidadPresupuestal,MontoDisponibilidad:FormateoInversoMonto(MontoDisponibilidad),ArchivosCargados:ArchivosCargados,tipoProcesoContratacion:$("#CrearContrato_TipoContrato").val(),Direccion:Direccion},
             success: function(respuesta){
-                LimpiarformularioContratos();
-                window.Swal.fire("Exito!","El Contrato se almaceno exitosamente!","success");
+                var datos = JSON.parse(respuesta);
+                if(datos['NumContrato'].trim()!="N/A"){
+                    LimpiarformularioContratos();
+                    window.Swal.fire("Exito!","El Proceso de Selección se almaceno exitosamente bajo el número: "+datos['NumContrato']+" !","success");
+                }else{
+          
+                    Swal.fire({
+                        title: 'Por favor Ingrese el Número de Proceso asignado:',
+                        input: 'text',
+                        inputAttributes: { autocapitalize: 'off' },
+                        showCancelButton: false,
+                        confirmButtonText: 'Guardar',
+                        allowOutsideClick: false, // Evitar cierre al hacer clic afuera
+                        backdrop: 'static', // Evitar cierre al hacer clic afuera
+                        allowEscapeKey: false,
+                        inputValidator: (valor) => {
+                            if (!valor) {
+                                return 'Debe ingresar un valor';
+                            }
+                        },
+                        preConfirm: (valor) => { return valor;}
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // El usuario ingresó un valor, lo usamos en la solicitud Ajax
+                            $.ajax({
+                                url: 'administracion.php',
+                                method: 'POST',
+                                data: { opcion:"GuardarNroProcesoSeleccion",NumProceso: result.value , "IdContrato":datos['IdContrato'] },
+                                success: function(response) {
+                                    LimpiarformularioContratos();
+                                    window.Swal.fire("Exito!","El Proceso de Selección se almaceno exitosamente bajo el número: "+response+" !","success");
+                                },
+                                error: function() {
+                                    window.toastr.error("Ocurrió un error interno");
+                                }
+                            });
+                        }
+                    });
+         
+                }
             },
             error: function(){
                 window.toastr.error('Error al cargar las opciones');
@@ -707,37 +1532,8 @@ function GuardarContratoDirecto() {
         Resp="SI";
     } 
 
-    if(!AportesRecursosViva){
-        $("#CrearContratoDirect_AportesVivaRecurso").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesEspecieViva){
-        $("#CrearContratoDirect_AportesVivaEspecie").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesRecursosMpio){
-        $("#CrearContratoDirect_AportesMpioRecurso").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!AportesEspecieMpio){
-        $("#CrearContratoDirect_AportesMpioEspecie").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!ValorOtrasFuentes){
-        $("#CrearContratoDirect_ValorOtrasFuentes").addClass("error");
-        Resp="SI";
-    } 
-
-    if(!NombreOtrasFuentes){
-        $("#CrearContratoDirect_NombreOtrasFuentes").addClass("error");
-        Resp="SI";
-    } 
-
-    if(Proceso=="Ninguno"){
+   
+   if(Proceso=="Ninguno"){
         $("#CrearContratoDirect_ProcesoPertenece").addClass("error");
         Resp="SI";
     } 
@@ -770,26 +1566,66 @@ function GuardarContratoDirecto() {
         window.toastr.error("Algunos campos obligatorios se encuentran vacios!");
         return false;
     }else{
+        var PoseeOtraFuente = "NO";
+
+        if(OtraFuente.length>0){
+            PoseeOtraFuente = "SI";
+        }
+
 
         $.ajax({
             url: 'administracion.php',
             type: 'POST',
-            data:{opcion:"GuardarContratoDirecto",depto:depto,mpio:mpio,PersonaContacto:PersonaContacto,numero_contacto:numero_contacto,correo_contacto:correo_contacto,rol_juridico:rol_juridico,rol_logistico:rol_logistico,rol_tecnico:rol_tecnico,FechaSolicitud:FechaSolicitud,TipoContrato:TipoContrato,TipoModalidad:TipoModalidad,TipoPersona:TipoPersona,NroActa:NroActa,FechaNroActa:FechaNroActa,ObjetoContrto:ObjetoContrto,SegmentoContrto:SegmentoContrto,TotalAportes:FormateoInversoMonto(TotalAportes),AportesRecursosViva:FormateoInversoMonto(AportesRecursosViva),AportesEspecieViva:FormateoInversoMonto(AportesEspecieViva),AportesRecursosMpio:FormateoInversoMonto(AportesRecursosMpio),AportesEspecieMpio:FormateoInversoMonto(AportesEspecieMpio),ValorOtrasFuentes:FormateoInversoMonto(ValorOtrasFuentes),NombreOtrasFuentes:NombreOtrasFuentes,Proceso:Proceso,DisponibilidadPresupuestal:DisponibilidadPresupuestal,FechaDisponibilidadPresupuestal:FechaDisponibilidadPresupuestal,MontoDisponibilidad:FormateoInversoMonto(MontoDisponibilidad),ContratistasDirecto:ContratistasDirecto,ArchivosCargados:ArchivosCargados,tipoProcesoContratacion:$("#CrearContrato_TipoContrato").val(),Direccion:Direccion},
+            data:{opcion:"GuardarContratoDirecto",depto:depto,mpio:mpio,PersonaContacto:PersonaContacto,numero_contacto:numero_contacto,correo_contacto:correo_contacto,rol_juridico:rol_juridico,rol_logistico:rol_logistico,rol_tecnico:rol_tecnico,FechaSolicitud:FechaSolicitud,TipoContrato:TipoContrato,TipoModalidad:TipoModalidad,TipoPersona:TipoPersona,NroActa:NroActa,FechaNroActa:FechaNroActa,ObjetoContrto:ObjetoContrto,SegmentoContrto:SegmentoContrto,TotalAportes:FormateoInversoMonto(TotalAportes),AportesRecursosViva:FormateoInversoMonto(AportesRecursosViva),AportesEspecieViva:FormateoInversoMonto(AportesEspecieViva),AportesRecursosMpio:FormateoInversoMonto(AportesRecursosMpio),AportesEspecieMpio:FormateoInversoMonto(AportesEspecieMpio),ValorOtrasFuentes:FormateoInversoMonto(ValorOtrasFuentes),NombreOtrasFuentes:NombreOtrasFuentes,Proceso:Proceso,DisponibilidadPresupuestal:DisponibilidadPresupuestal,FechaDisponibilidadPresupuestal:FechaDisponibilidadPresupuestal,MontoDisponibilidad:FormateoInversoMonto(MontoDisponibilidad),ContratistasDirecto:ContratistasDirecto,ArchivosCargados:ArchivosCargados,tipoProcesoContratacion:$("#CrearContrato_TipoContrato").val(),Direccion:Direccion, OtraFuente:OtraFuente,PoseeOtraFuente:PoseeOtraFuente },
             success: function(respuesta){
 
-                if(respuesta.trim() == "Error"){
-                    $("#CrearContrato_NumContratoViva").val("").addClass("error");
-                    window.Swal.fire("Error de Validación!","El número de contrato ingresado ya se encuentra asignado, favor ingresa uno nuevo!","error");
+                var datos = JSON.parse(respuesta);
+                if(datos['NumContrato'].trim()!="N/A"){
+                    LimpiarformularioContratos();
+                    window.Swal.fire("Exito!","El Contrato se almaceno bajo el número: "+datos['NumContrato']+"  exitosamente!","success");
                 }else{
-                   LimpiarformularioContratos();
-                    window.Swal.fire("Exito!","El Contrato se almaceno exitosamente!","success");
+                    Swal.fire({
+                        title: 'Por favor Ingrese el Número de Contrato asignado:',
+                        input: 'text',
+                        inputAttributes: { autocapitalize: 'off' },
+                        showCancelButton: false,
+                        confirmButtonText: 'Guardar',
+                        allowOutsideClick: false, // Evitar cierre al hacer clic afuera
+                        backdrop: 'static', // Evitar cierre al hacer clic afuera
+                        allowEscapeKey: false,
+                        inputValidator: (valor) => {
+                            if (!valor) {
+                                return 'Debe ingresar un valor';
+                            }
+                        },
+                        preConfirm: (valor) => {
+                            return valor;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // El usuario ingresó un valor, lo usamos en la solicitud Ajax
+                            $.ajax({
+                                url: 'administracion.php',
+                                method: 'POST',
+                                data: { opcion:"GuardarNroProcesoSeleccion",NumProceso: result.value , "IdContrato":datos['IdContrato'] },
+                                success: function(response) {
+                                    window.Swal.fire("Exito!","El Contrato se almaceno bajo el número: "+response+"  exitosamente!","success");
+                                },
+                                error: function() {
+                                    window.toastr.error("Ocurrió un error interno");
+                                }
+                            });
+                        }
+                    });
+
+
                 }
+
             },
             error: function(){
                 window.toastr.error('Error al cargar las opciones');
             }
         });
-
     }
 }
 
@@ -905,9 +1741,91 @@ function AdicionarContratistaContratoDirecto2(ParIdCombo) {
     ActualizarContratistasCargadosDirecto();
 }
 
-function AdicionarInformacionAdicional(){
-    $("#Btn_Modal_AdicionarInfo").click();
+
+
+function PoseeAportesCargados(callback){
+    var IdContrato = $("#IdContrato").val();
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data:{opcion:"PoseeAportesCargados",IdContrato:IdContrato},
+        success: function(respuesta){
+            callback( respuesta );
+        },error: function(){
+            window.toastr.error('Error al cargar las opciones');
+        }
+    });
 }
+
+
+function ConsultarEstadoContrato(callback){
+    var IdContrato = $("#IdContrato").val();
+    $.ajax({
+        url: 'administracion.php',
+        type: 'POST',
+        data: { opcion: "ConsultarEstadoContrato", "IdContrato": IdContrato },
+        success: function (respuesta) {
+           callback( respuesta);
+        },error: function () {
+            window.toastr.error('Ocurrió un error al eliminar el supervisor.');
+        }
+    });
+}
+
+
+function AdicionarInformacionAdicional(){
+    ConsultarEstadoContrato(function (respuesta){
+        if(respuesta=="INICIADO"){
+            $("#btn_anular").show();
+            $("#btn_desertar").hide();
+            $("#btn_Celebrar").show();
+        }else if(respuesta=="ANULADO" || respuesta=="TERMINADO"){
+            $("#btn_anular").hide();
+            $("#btn_desertar").hide();
+            $("#btn_Celebrar").hide();
+        }else{
+            $("#btn_anular").hide();
+            $("#btn_desertar").show();
+            $("#btn_Celebrar").hide();
+        }
+        $("#Btn_Modal_AdicionarInfo").click();
+
+    });
+
+}
+
+function AdicionarInformacionAportes() {
+
+    var tabla = $('#Tbl_ValorOtrasFuenta').DataTable();
+    tabla.clear().draw();
+    $("#btn_Modal_CargarFuentesFinanciacion").click();
+    MostrarOtrasFuentes();
+
+    PoseeAportesCargados(function (respuesta){
+
+        if($("#TipoContrato").val()=="ContratoProceso" && respuesta.trim()=="NO"){
+            $("#CargarFuentesFinanciacion_AportesVivaEspecie").removeAttr("readonly");
+            $("#CargarFuentesFinanciacion_AportesVivaRecursos").removeAttr("readonly");
+            $("#CargarFuentesFinanciacion_AportesMpioEspecie").removeAttr("readonly");
+            $("#CargarFuentesFinanciacion_AportesMpioRecursos").removeAttr("readonly");
+            $("#btn_AdicionarOtrasFuentes").removeAttr("disabled");
+            $("#btn_ActualizarDatosFinancierolProceso").removeAttr("disabled");
+            $("#AddInfoContratoProceso_ValorOtrasFuentes").removeAttr("readonly");
+            $("#AddInfoContratoProceso_NombreOtrasFuentes").removeAttr("readonly");
+        }else{
+            $("#CargarFuentesFinanciacion_AportesVivaEspecie").attr("readonly","true");
+            $("#CargarFuentesFinanciacion_AportesVivaRecursos").attr("readonly","true");
+            $("#CargarFuentesFinanciacion_AportesMpioEspecie").attr("readonly","true");
+            $("#CargarFuentesFinanciacion_AportesMpioRecursos").attr("readonly","true");
+            $("#btn_AdicionarOtrasFuentes").attr("disabled","true");
+            $("#btn_ActualizarDatosFinancierolProceso").attr("disabled","true");
+            $("#AddInfoContratoProceso_ValorOtrasFuentes").attr("readonly","true");
+            $("#AddInfoContratoProceso_NombreOtrasFuentes").attr("readonly","true");
+        }
+    });
+}
+
+
 
 function AdicionarInformacionPoliza(){
     $("#Btn_Modal_AdicionarPoliza").click();
@@ -927,7 +1845,6 @@ function AdicionarAmparoPoliza() {
         Resp="SI";
     }
 
-
     if(!FechaInicio){
         $("#CrearContratoPoliza_FechaIniAmparo").addClass();
         Resp="SI";
@@ -943,7 +1860,6 @@ function AdicionarAmparoPoliza() {
         Resp="SI";
     }
 
-
     if(Resp=="SI"){
         window.toastr.error("Algunos campos obligatorios estan vacios");
         return false;
@@ -954,6 +1870,8 @@ function AdicionarAmparoPoliza() {
 
     }
 }
+
+
 
 function ActualizarAmparosPolizas(){
 
@@ -974,6 +1892,12 @@ function ActualizarAmparosPolizas(){
     }
 }
 
+
+function EliminarAmparoPoliza(pos){
+    
+    AmparosPoliza.splice(pos, 1);
+    ActualizarAmparosPolizas();
+}
 
 
 function AdicionarContratistaContratoDirecto() {
@@ -1165,6 +2089,8 @@ function DiferenciaEntreFechas(ParamFechaInicio, ParamFechaFin) {
 
 
 
+
+
 function GuardarContrato(){
 
     var depto = $("#CrearContrato_dpto").val();
@@ -1352,9 +2278,363 @@ function LimpiarformularioContratos(){
     $("#CrearContratoSeleccion_MontoDisponibilidad").val("");
     ArchivosCargados = [];
     ContratistasDirecto = [];
+    OtraFuente = [];
+    ActualizarContratistasCargadosDirecto();
+    $("#btn_AdicionarContratistaContratoDirecto").removeAttr("disabled");
+    MostrarOtrasFuentes();
     $(".error").removeClass("error");
 }
 
+
+function GenerarReporteInfoAdicxContr() {
+    var workbook = XLSX.utils.book_new();
+    var sheetData = [
+        ['#', 'Número de Contrato', 'Fecha de Solicitud', 'Fecha Inicio', 'Fecha Fin', 'Número Compromiso Presupuestal', 'Fecha Compromiso Presupuestal', 'Monto Compromiso Presupuestal','Fecha Gest. Transp.','Fecha Trans. CAD','Fecha Publicación en Secop','Link Publicación en Secop']
+    ];
+
+    for (var i = 0; i < Contratos.length; i++) {
+
+        var rowData = [
+            parseInt(i+1),
+            Contratos[i]['CONTRATO_NUMERO_VIVA'],
+            Contratos[i]['FECHA_SOLICITUD'],
+            Contratos[i]['FECHA_INI'],
+            Contratos[i]['FECHA_FIN'],
+            Contratos[i]['COMPROMISO_PRESUPUESTAL'],
+            Contratos[i]['FECHA_COMPROMISO_PRESUPUESTAL'],
+            Contratos[i]['MONTO_COMPROMISO_PRESUPUESTAL'],
+            Contratos[i]['FECHA_PUBLICACION_GEST_TRANS'],
+            Contratos[i]['FECHA_TRANS_CAD'],
+            Contratos[i]['FECHA_PUBLICACION_SECOP'],
+            Contratos[i]['LINK_PUBLICACION_SECOP']
+        ];
+
+        sheetData.push(rowData);
+    }
+
+    // Resto del código para generar el archivo Excel
+
+    var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Resumen');
+
+    var workbookOutput = XLSX.write(workbook, { type: 'binary' });
+    var blob = new Blob([s2ab(workbookOutput)], { type: 'application/octet-stream' });
+    saveAs(blob, 'ResumenInformacionAdicionalporContrato.xlsx');       
+}
+
+
+
+
+function FiltrarResultadosInfoAdicxContr() {
+    var Anio = $("#InfoAdicxContrFiltros_anio").val();
+    var Mes = $("#InfoAdicxContrFiltros_Mes").val();
+
+    if(!Anio){
+        Anio = "NO";
+    }
+
+    if(!Mes){
+        Mes = "NO";
+    }
+
+    $.ajax({
+        url: '../administracion.php',
+        type: 'POST',
+        data:{opcion:"FiltrarResultadosInfoAdicxContr",Anio:Anio,Mes:Mes},
+        success: function(respuesta){
+            Contratos = JSON.parse(respuesta);
+            var tabla = $('#Tbl_ResumenGestionCont').DataTable();
+            tabla.clear().draw();
+            if(Contratos.length>0){
+                $("#Btn_ReporteInfoAdicxContr").show();
+                for (var i = 0; i < Contratos.length; i++) {
+                    tabla.row.add([
+                      '<td><center>'+parseInt(i+1)+'</center></td>',
+                      '<td><center>'+Contratos[i].CONTRATO_NUMERO_VIVA+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_SOLICITUD+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_INI+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_FIN+'</center></td>',
+                      '<td><center>'+Contratos[i].COMPROMISO_PRESUPUESTAL+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_COMPROMISO_PRESUPUESTAL+'</center></td>',
+                      '<td><center>'+formatearMonto( Contratos[i].MONTO_COMPROMISO_PRESUPUESTAL)+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_PUBLICACION_GEST_TRANS+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_TRANS_CAD+'</center></td>',
+                      '<td><center>'+Contratos[i].FECHA_PUBLICACION_SECOP+'</center></td>',
+                      '<td class="texto-largo"><center class="texto-largo"><a href="'+Contratos[i].LINK_PUBLICACION_SECOP+'" >'+Contratos[i].LINK_PUBLICACION_SECOP+'<a></center></td>',
+                    ]).draw();            
+                }
+            }else{
+                $("#Btn_ReporteInfoAdicxContr").hide();
+            }
+        }, error: function(){
+             window.toastr.warning('Error al cargar las opciones');
+        }
+    });
+}
+
+function FiltrarResultadosResumenGestionCont() {
+    var Anio = $("#ResumenGestionContFiltros_anio").val();
+    var Mes = $("#ResumenGestionContFiltros_Mes").val();
+
+    if(!Anio){
+        Anio = "NO";
+    }
+
+    if(!Mes){
+        Mes = "NO";
+    }
+
+    $.ajax({
+        url: '../administracion.php',
+        type: 'POST',
+        data:{opcion:"FiltrarResultadosResumenGestionCont",Anio:Anio,Mes:Mes},
+        success: function(respuesta){
+            Contratos = JSON.parse(respuesta);
+            var tabla = $('#Tbl_ResumenGestionDocumental').DataTable();
+            tabla.clear().draw();
+            if(Contratos.length>0){
+                $("#Btn_ReporteMensualContrato").show();
+                var total = 0;
+                var desierto = 0;
+                var anulado = 0;
+                for (var i = 0; i < Contratos.length; i++) {
+
+                    total+= parseInt(Contratos[i].cantidad);
+                    desierto+= parseInt(Contratos[i].Desierto);
+                    anulado+= parseInt(Contratos[i].Anulado);
+
+                    tabla.row.add([
+                      '<tr><td rowspan="3"><center>'+Contratos[i].TIPO_PROCESO_CONTRATO+'</center></td>',
+                      '<td><center>'+Contratos[i].TipoContrato+'</center></td>',
+                      '<td><center>'+Contratos[i].cantidad+'</center></td>',
+                      '<td><center>'+Contratos[i].Direccion+'</center></td>',
+                      '<td><center>'+Contratos[i].cantidad+'</center></td>',
+                      '<td><center>'+Contratos[i].Desierto+'</center></td></tr>',
+                      '<td><center>'+Contratos[i].Anulado+'</center></td>',
+                    ]).draw();            
+                }
+                $("#Total1").html(total);
+                $("#Total2").html(total);
+                $("#Total3").html(desierto);
+                $("#Total4").html(anulado);
+            }else{
+                $("#Btn_ReporteMensualContrato").hide();
+            }
+        }, error: function(){
+             window.toastr.warning('Error al cargar las opciones');
+        }
+    });
+
+
+    $.ajax({
+        url: '../administracion.php',
+        type: 'POST',
+        data:{opcion:"FiltrarResultadosResumenGestionContTotales",Anio:Anio,Mes:Mes},
+        success: function(respuesta){
+            TotalesContratos = JSON.parse(respuesta);
+            var tabla = $('#Tbl_ResumenGestionDocumental_Total').DataTable();
+            tabla.clear().draw();
+            if(TotalesContratos.length>0){
+                $("#Btn_ReporteMensualContrato").show();
+
+                tabla.row.add([
+                  '<tr><td><center>TOTAL NÚMEROS ASIGNADOS</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cantidad+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>TOTAL NÚMEROS ANULADOS</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_Anulado+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>TOTAL DE PROCESO DESIERTOS</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_Desierto+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>PUBLICADOS EN SECOP</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_secop+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>PUBLICADOS EN GESTIÓN TRANSPARENTE</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_GestTrans+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>PENDIENTES DE LEGALIZAR</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_SinLegalizar+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>PENDIENTES DE ACTA DE INICIO</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_SinActa+'</center></td></tr>',
+                ]).draw(); 
+
+                tabla.row.add([
+                  '<tr><td><center>ENTREGADOS AL CAD</center></td>',
+                  '<td><center>'+TotalesContratos[0].Cant_TransCad+'</center></td></tr>'
+                ]).draw();            
+
+            }else{
+                $("#Btn_ReporteMensualContrato").hide();
+            }
+        }, error: function(){
+             window.toastr.warning('Error al cargar las opciones');
+        }
+    });
+}
+
+function GenerarReporteMensualContrato() {
+    var workbook = XLSX.utils.book_new();
+    var sheetData = [
+        ['Tipo de Proceso', 'Tipo de Contrato', 'Cantidad de Contratos', 'Dirección', 'Cantidad de Contratos', 'Contratos Desiertos', 'Contratos Anulados']
+    ];
+
+    var prevTipoProceso = Contratos[0]['TIPO_PROCESO_CONTRATO']; // Variable para rastrear el valor anterior de "Tipo de Proceso"
+    var rowCount = 1; // Contador de filas para aplicar rowspan
+    var merges = []; // Lista de combinaciones de celdas
+    var inicio = 1;
+    var final = 0;
+    var total = 0; 
+    var desiertos = 0;
+    var Anulado = 0;
+    for (var i = 0; i < Contratos.length; i++) {
+        var currentTipoProceso = Contratos[i]['TIPO_PROCESO_CONTRATO'];
+        total+= parseInt(Contratos[i]['cantidad']);
+        desiertos+= parseInt(Contratos[i]['Desierto']);
+        Anulado+= parseInt(Contratos[i]['Anulado']);
+
+        // Comprobar si el valor de "Tipo de Proceso" ha cambiado desde la fila anterior
+        if (currentTipoProceso !== prevTipoProceso || i== parseInt(Contratos.length-1) ) {
+            if(i==parseInt(Contratos.length-1)){
+                final = parseInt(i+1);
+            }else{
+                final = i;
+            }
+
+            rowCount = 1; // Restablecer el contador de filas
+            merges.push({ s: { r: inicio, c: 0 }, e: { r: final, c: 0 } });
+            inicio = parseInt(i+1);
+            prevTipoProceso = currentTipoProceso; // Actualizar el valor anterior de "Tipo de Proceso"
+        }
+
+        var rowData = [
+            rowCount === 1 ? currentTipoProceso : '', // Aplicar rowspan solo en la primera fila
+            Contratos[i]['TipoContrato'],
+            Contratos[i]['cantidad'],
+            Contratos[i]['Direccion'],
+            Contratos[i]['cantidad'],
+            Contratos[i]['Anulado'],
+            Contratos[i]['Desierto']
+        ];
+
+        sheetData.push(rowData);
+    }
+
+    final++;
+    merges.push({ s: { r: final, c: 0 }, e: { r: final, c: 1 } });
+        var rowData = [
+            'TOTAL','',
+            total,
+            'TOTAL',
+            total,
+            desiertos,
+            Anulado
+        ];
+
+        sheetData.push(rowData);
+
+    // Resto del código para generar el archivo Excel
+
+
+    sheetData.push(['']);
+    sheetData.push(['Nombre', 'Cantidad']);
+    sheetData.push([ 'TOTAL NÚMEROS ASIGNADOS', TotalesContratos[0]['Cantidad'] ]);
+    sheetData.push([ 'TOTAL NÚMEROS ANULADOS', TotalesContratos[0]['Cant_Anulado'] ]);
+    sheetData.push([ 'TOTAL DE PROCESO DESIERTOS', TotalesContratos[0]['Cant_Desierto'] ]);
+    sheetData.push([ 'PUBLICADOS EN SECOP', TotalesContratos[0]['Cant_secop'] ]);
+    sheetData.push([ 'PUBLICADOS EN GESTIÓN TRANSPARENTE', TotalesContratos[0]['Cant_GestTrans'] ]);
+    sheetData.push([ 'PENDIENTES DE LEGALIZAR', TotalesContratos[0]['Cant_SinLegalizar'] ]);
+    sheetData.push([ 'PENDIENTES DE ACTA DE INICIO', TotalesContratos[0]['Cant_SinActa'] ]);
+    sheetData.push([ 'ENTREGADOS AL CAD', TotalesContratos[0]['Cant_TransCad'] ]);
+    var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+    // Aplicar las combinaciones de celdas
+    worksheet['!merges'] = merges;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Resumen');
+
+    var workbookOutput = XLSX.write(workbook, { type: 'binary' });
+    var blob = new Blob([s2ab(workbookOutput)], { type: 'application/octet-stream' });
+    saveAs(blob, 'ResumenMensualGestionContractual.xlsx');       
+}
+
+
+function ActualizarClienteContratoProceso(){
+
+    var Depto = $("#CrearContratoSeleccion_dpto").val();
+    var Mpio = $("#CrearContratoSeleccion_mpio").val();
+    var Persona = $("#CrearContratoSeleccion_PersonaContacto").val();
+    var NumContacto = $("#CrearContratoSeleccion_NumeroContacto").val();
+    var CorreoContaccto = $("#CrearContratoSeleccion_CorreoContacto").val();
+    var Resp = "NO";
+
+    if(!Depto || Depto=="Ninguno"){
+        $("#CrearContratoSeleccion_dpto").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!Mpio || Mpio=="Ninguno"){
+        $("#CrearContratoSeleccion_mpio").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!Persona){
+        $("#CrearContratoSeleccion_PersonaContacto").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!NumContacto){
+        $("#CrearContratoSeleccion_NumeroContacto").addClass("error");
+        Resp = "SI";
+    }
+
+    if(!CorreoContaccto){
+        $("#CrearContratoSeleccion_CorreoContacto").addClass("error");
+        Resp = "SI";
+    }
+
+    if(Resp=="SI"){
+
+        window.toastr.error("Algunos campos obligatorios estan vacios!");
+        return false;
+
+    }else{
+
+        var IdContrato = $("#IdContrato").val();
+        $.ajax({
+            url: 'administracion.php',
+            type: 'POST',
+            data:{opcion:"ActualizarClienteContratoProceso",IdContrato:IdContrato,Depto:Depto,Mpio:Mpio,Persona:Persona,NumContacto:NumContacto,CorreoContaccto:CorreoContaccto},
+            success: function(respuesta){
+                if(respuesta.trim()=="OK"){
+                   window.Swal.fire("Exito!","Datos del cliente actualizado satisfactoriamente!","success");
+                   $("#CrearContratoSeleccion_dpto").attr("readonly","true");
+                   $("#CrearContratoSeleccion_mpio").attr("readonly","true");
+                   $("#CrearContratoSeleccion_NumeroContacto").attr("readonly","true");
+                   $("#CrearContratoSeleccion_CorreoContacto").attr("readonly","true");
+                   $("#CrearContratoSeleccion_PersonaContacto").attr("readonly","true"); 
+                   $("#Btn_Update_ClienteContrato").hide();
+                }else{
+                    window.toastr.error(respuesta);
+                }
+            }
+        });
+    }
+}
 
 function SeleccionarContratoAddInfo(IdContrato) {
     $("#AdicionarInfo_ContratoBuscarId_List").html("");
@@ -1365,14 +2645,50 @@ function SeleccionarContratoAddInfo(IdContrato) {
         success: function(respuesta){
            var datos = JSON.parse(respuesta);
 
-           $("#IdContrato").val(datos[0].ID);
-           //if(datos[0].TIPO_PROCESO_CONTRATO == "ContratoProceso"){  
+                $("#IdContrato").val(datos[0].ID); 
+                $("#TipoContrato").val(datos[0].TIPO_PROCESO_CONTRATO);
+                $("#CrearContratoSeleccion_mpio").html("");
+                CargarDeptosEspera("CrearContratoSeleccion_dpto", function () {
+                   if(datos[0].TIPO_PROCESO_CONTRATO=="ContratoProceso" && (!datos[0].NombreDepto || !datos[0].NombreMpio || !datos[0].NOMBRE_CONTACTO || !datos[0].NUMERO_CONTACTO || !datos[0].CORREO_CONTACTO)){
+                        $("#Btn_Update_ClienteContrato").show();
+                        $("#CrearContratoSeleccion_dpto").removeAttr("readonly");
+                        $("#CrearContratoSeleccion_mpio").removeAttr("readonly");
+                        $("#CrearContratoSeleccion_NumeroContacto").removeAttr("readonly");
+                        $("#CrearContratoSeleccion_CorreoContacto").removeAttr("readonly");
+                        $("#CrearContratoSeleccion_PersonaContacto").removeAttr("readonly");
+                        if(datos[0].NombreDepto) { $("#CrearContratoSeleccion_dpto").val(datos[0].ID_DEPTO); 
+                            CargarMunicipioEspera('CrearContratoSeleccion_dpto','CrearContratoSeleccion_mpio', function () {
+                            if(datos[0].NombreMpio) { $("#CrearContratoSeleccion_mpio").val(datos[0].ID_MUNICIPIO); }else{ $("#CrearContratoSeleccion_mpio").val("Ninguno");}
+                        });
+                        }else{ $("#CrearContratoSeleccion_dpto").val("Ninguno"); $("#CrearContratoSeleccion_mpio").val("Ninguno");}
+                        
+                        if(datos[0].NOMBRE_CONTACTO) { $("#CrearContratoSeleccion_PersonaContacto").val(datos[0].NOMBRE_CONTACTO); }else{ $("#CrearContratoSeleccion_PersonaContacto").val("");}
+                        if(datos[0].NUMERO_CONTACTO) { $("#CrearContratoSeleccion_NumeroContacto").val(datos[0].NUMERO_CONTACTO); }else{ $("#CrearContratoSeleccion_NumeroContacto").val("");}
+                        if(datos[0].CORREO_CONTACTO) { $("#CrearContratoSeleccion_CorreoContacto").val(datos[0].CORREO_CONTACTO); }else{ $("#CrearContratoSeleccion_CorreoContacto").val("");}
+                   }else{
+                       $("#CrearContratoSeleccion_dpto").val(datos[0].ID_DEPTO);
+                       CargarMunicipioEspera('CrearContratoSeleccion_dpto','CrearContratoSeleccion_mpio', function () {
+                           $("#CrearContratoSeleccion_mpio").val(datos[0].ID_MUNICIPIO);
+                       });
+                       $("#CrearContratoSeleccion_PersonaContacto").val(datos[0].NOMBRE_CONTACTO);
+                       $("#CrearContratoSeleccion_NumeroContacto").val(datos[0].NUMERO_CONTACTO);
+                       $("#CrearContratoSeleccion_CorreoContacto").val(datos[0].CORREO_CONTACTO);
+                       $("#CrearContratoSeleccion_dpto").attr("readonly","true");
+                       $("#CrearContratoSeleccion_mpio").attr("readonly","true");
+                       $("#CrearContratoSeleccion_NumeroContacto").attr("readonly","true");
+                       $("#CrearContratoSeleccion_CorreoContacto").attr("readonly","true");
+                       $("#CrearContratoSeleccion_PersonaContacto").attr("readonly","true");  
+                   }
+                });
+
+               
+
+
+
                $("#AdicionarInfo_ContratoBuscarId").val(datos[0].NumContrato);
-               $("#CrearContratoSeleccion_dpto").val(datos[0].NombreDepto);
-               $("#CrearContratoSeleccion_mpio").val(datos[0].NombreMpio);
-               $("#CrearContratoSeleccion_PersonaContacto").val(datos[0].NOMBRE_CONTACTO);
-               $("#CrearContratoSeleccion_NumeroContacto").val(datos[0].NUMERO_CONTACTO);
-               $("#CrearContratoSeleccion_CorreoContacto").val(datos[0].CORREO_CONTACTO);
+
+               $("#CrearContratoSeleccion_ESTADO_CONTRATO").val(datos[0].ESTADO_CONTRATO);
+
                $("#CrearContratoSeleccion_FechaSol").val( datos[0].FECHA_SOLICITUD) ;
                $("#CrearContratoSeleccion_RolJuridico").val(datos[0].ROL_JURIDICO);
                $("#CrearContratoSeleccion_RolLogistico").val(datos[0].ROL_LOGISTICO);
@@ -1381,16 +2697,25 @@ function SeleccionarContratoAddInfo(IdContrato) {
                $("#CrearContratoSeleccion_Modalidad").val(datos[0].NombreModalidad);
                $("#CrearContratoSeleccion_FechaActaComite").val(datos[0].FECHA_NRO_ACTA);
                $("#CrearContratoSeleccion_NroActaComite").val(datos[0].NRO_ACTA);
-               $("#CrearContratoSeleccion_TotalAportes").val(datos[0].TOTAL_APORTES);
                $("#CrearContratoSeleccion_DisponibilidadPresupuestal").val(datos[0].DISPONIBILIDAD_PRESUPUESTAL);
                $("#CrearContratoSeleccion_FechaDisponibilidad").val(datos[0].FECHA_DISPONIBILIDAD_PRESUPUESTAL);
-               $("#CrearContratoSeleccion_MontoDisponibilidad").val(datos[0].MONTO_DISPONIBILIDAD_PRESUPUESTAL);
-               $("#CrearContratoSeleccion_AportesMpioEspecie").val(datos[0].APORTES_ESPECIE_MPIO);
-               $("#CrearContratoSeleccion_AportesVivaEspecie").val(datos[0].APORTES_ESPECIE_VIVA);
-               $("#CrearContratoSeleccion_AportesVivaRecurso").val(datos[0].APORTES_RECURSOS_VIVA);
-               $("#CrearContratoSeleccion_AportesMpioRecurso").val(datos[0].APORTES_RECURSOS_MPIO);
-               $("#CrearContratoSeleccion_ValorOtrasFuentes").val(datos[0].VALOR_OTRAS_FUENTA);
-               $("#CrearContratoSeleccion_NombreOtrasFuentes").val(datos[0].NOMBRES_OTRAS_FUENTES);
+               $("#CrearContratoSeleccion_MontoDisponibilidad").val(formatearMonto(datos[0].MONTO_DISPONIBILIDAD_PRESUPUESTAL));
+
+                if(datos[0].TOTAL_APORTES>0){
+                    $("#btn_adicionar_adicional .btn_transparente").removeAttr("disabled");
+                }else{
+                    $("#btn_adicionar_adicional .btn_transparente").attr("disabled","true");
+                    $("#btn_adicionar_adicional .btn_addfuentes").removeAttr("disabled");
+                }
+
+
+               
+               $("#CargarFuentesFinanciacion_AportesMpioEspecie").val(formatearMonto(datos[0].APORTES_ESPECIE_MPIO)).attr("readonly","true");
+               $("#CargarFuentesFinanciacion_AportesVivaEspecie").val(formatearMonto(datos[0].APORTES_ESPECIE_VIVA)).attr("readonly","true");
+               $("#CargarFuentesFinanciacion_AportesVivaRecursos").val(formatearMonto(datos[0].APORTES_RECURSOS_VIVA)).attr("readonly","true");
+               $("#CargarFuentesFinanciacion_AportesMpioRecursos").val(formatearMonto(datos[0].APORTES_RECURSOS_MPIO)).attr("readonly","true");
+               $("#CargarFuentesFinanciacion_TotalAportes").val( formatearMonto(datos[0].TOTAL_APORTES) );
+
                $("#CrearContratoSeleccion_DireccionPertenece").val(datos[0].DIRECCION);
                $("#CrearContratoSeleccion_ProcesoPertenece").val(datos[0].PROCESO);
                $("#CrearContratoSeleccion_ObjetoContrato").val(datos[0].OBJETO_CONTRATO);
@@ -1399,13 +2724,28 @@ function SeleccionarContratoAddInfo(IdContrato) {
                $("#btnModalHistoricoOtroSi").removeAttr("disabled");
                $("#FormContratoProceso").show();
                $("#btn_adicionar_adicional").show();
+               OtraFuente = [];
+               if(datos[0]['OtrasFuentes'].length>0 ){
+
+                    $("#AddInfoContratoProceso_ValorOtrasFuentes").attr("readonly","true");
+                    $("#AddInfoContratoProceso_NombreOtrasFuentes").attr("readonly","true");
+                    $("#btn_AdicionarOtrasFuentes").attr("disabled","true");
+                    $("#btn_ActualizarDatosFinancierolProceso").attr("disabled","true");
+
+                    for(var i = 0; i < datos[0]['OtrasFuentes'].length; i++) {
+                        OtraFuente.push({ "Id":OtraFuente.length, "NombreOtraFuente":datos[0]['OtrasFuentes'][i]['NombreFuente'] , "MontoOtraFuente": formatearMonto( datos[0]['OtrasFuentes'][i]['Monto'] ) });
+                    }
+                    CalcularSaldoTotalSeleccion2();
+                    MostrarOtrasFuentes();
+                }
 
                //Cargo la informacion adicional si la ubiera
                if(datos[0]['InformacionAdicional'].length>0){
 
                     var detalles = datos[0]['InformacionAdicional'][0];
+                    if(detalles['TIPO_PERSONA']){
                     $("#CrearContratoAdicionar_TipoPersonaContratar").val(detalles['TIPO_PERSONA']);
-                    CargarContratistas('CrearContratoAdicionar_TipoPersonaContratar');
+                    CargarContratistas('CrearContratoAdicionar_TipoPersonaContratar');}
                     $("#CrearContratoAdicionar_FechaInicio").val(detalles['FECHA_INI']);
                     $("#CrearContratoAdicionar_FechaFin").val(detalles['FECHA_FIN']);
                     $("#CrearContratoAdicionar_FechaContrato").val(detalles['FECHA_CONTRATO']);
@@ -1413,6 +2753,7 @@ function SeleccionarContratoAddInfo(IdContrato) {
                     $("#CrearContratoAdicionar_FechaCompromisoPresupuestal").val(detalles['FECHA_COMPROMISO_PRESUPUESTAL']);
                     $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val( formatearMonto(detalles['MONTO_COMPROMISO_PRESUPUESTAL']));
                     $("#CrearContratoAdicionar_OrdenadorGasto").val(detalles['ORDENADOR_GASTO']);
+                    if(detalles['ID_TIPO_GASTO'])
                     $("#CrearContratoAdicionar_TipoGasto").val(detalles['ID_TIPO_GASTO']);
                     $("#CrearContratoAdicionar_FechaPubSecop").val(detalles['FECHA_PUBLICACION_SECOP']);
                     $("#CrearContratoAdicionar_linkPubSecop").val(detalles['LINK_PUBLICACION_SECOP']);
@@ -1436,12 +2777,137 @@ function SeleccionarContratoAddInfo(IdContrato) {
                         }    
                     }
                }
-
-            //}
         },error: function(){
              window.toastr.warning('Error al cargar las opciones');
         }
     });
+}
+
+
+
+
+function BuscarContratoReporteAdmin(){
+
+    var ingresado = $("#PolizasAmparosContr_ContratoBuscarId").val();
+    if (ingresado && ingresado.length>2){
+        $.ajax({
+            url: '../administracion.php',
+            type: 'POST',
+            data:{opcion:"BuscarContratoAdicionarInfo",ingresado:ingresado},
+            success: function(respuesta){
+                var html = '';
+                if(respuesta.trim()!='"NO"'){
+                    var datos = JSON.parse(respuesta);
+                    if(datos.length>0){
+                        for (var i = 0; i < datos.length; i++) {
+                            html+='<li class="list-group-item" onclick=SeleccionarContratoReportInfo(\''+datos[i].ID+'\',\''+datos[i].CONTRATO_NUMERO_VIVA+'\') >'+datos[i].CONTRATO_NUMERO_VIVA+'</li>';
+                        }
+                    }
+                    $("#PolizasAmparosContr_ContratoBuscarId_List").html(html);
+                }else{
+                    $("#PolizasAmparosContr_ContratoBuscarId_List").html('<li class="list-group-item">No hay datos que mostrar</li>');
+                }
+            },error: function(){
+                 window.toastr.warning('Error al cargar las opciones');
+            }
+        });
+    }else{
+        $("#PolizasAmparosContr_ContratoBuscarId_List").html("");
+    }
+}
+
+function SeleccionarContratoReportInfo(Param_Idcontrato,Param_NumeroContrato){
+    $("#IdContrato").val(Param_Idcontrato);
+    $.ajax({
+        url: '../administracion.php',
+        type: 'POST',
+        data:{opcion:"SeleccionarContratoReportInfo",IdContrato:Param_Idcontrato},
+        success: function(respuesta){ 
+            var tabla = $('#Tbl_Reporte_PolizasAmparosContr').DataTable();
+            tabla.clear().draw();
+            Contratos = JSON.parse(respuesta);
+            if(Contratos.length>0){
+                for (var i = 0; i < Contratos.length; i++) {
+                    tabla.row.add([
+                      '<center>'+parseInt(i+1)+'</center>',
+                      '<center>'+Contratos[i].CONTRATO_NUMERO_VIVA+'</center>',
+                      '<center>'+Contratos[i].ESTADO_CONTRATO+'</center>',
+                      '<center>'+Contratos[i].Compania_Poliza+'</center>',
+                      '<center>'+Contratos[i].Numero_Poliza+'</center>',
+                      '<center>'+Contratos[i].TipoPoliza+'</center>',
+                      '<center>'+Contratos[i].TipoAmparo+'</center>',
+                      '<center>'+Contratos[i].Fecha_Inicio_Amparo+'</center>',
+                      '<center>'+Contratos[i].Fecha_Fin_Amparo+'</center>',
+                      '<center>'+formatearMonto(Contratos[i].Cuantia_Amparo)+'</center>'
+                    ]).draw();
+                }
+                $("#PolizasAmparosContr_ContratoBuscarId").val(Param_NumeroContrato);
+                $("#Div_Reporte_PolizasAmparosContr").show();
+                $("#PolizasAmparosContr_ContratoBuscarId_List").html("");
+                $("#Div_Btn_PolizasAmparosContr_ReporteExcel").show();
+            }else{
+                $("#Div_Reporte_PolizasAmparosContr").hide();
+                $("#Div_Btn_PolizasAmparosContr_ReporteExcel").hide();
+            }
+        },error: function(){
+            alert('Error al cargar las opciones');
+        }
+    });
+}
+
+
+function ValidarMontosCdpRp(){
+
+
+    var MontoRp = $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val();
+    var MontoCdp = $("#CrearContratoSeleccion_MontoDisponibilidad").val();
+
+    if(MontoRp!=MontoCdp){
+        Swal.fire({
+          title: "Advertencia!",
+          text: "Monto de CDP y de RP son diferentes, ¿estás seguro de continuar?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí",
+          cancelButtonText: "No",
+        }).then((result) => {
+          if (!result.isConfirmed) {
+            $("#CrearContratoAdicionar_MontoCompromisoPresupuestal").val("");
+          }
+        });
+
+    }
+
+}
+
+function ReporteExcelPolizasAmparosContr() {
+    var workbook = XLSX.utils.book_new();
+    var sheetData = [
+        ['#', 'Número de Contrato', 'Estado Contrato', 'Compañia de Seguros', 'Número de Póliza', 'Tipo de Póliza', 'Amparo', 'Fecha Inicio de Amapro','Fecha Final de Amaparo','Cuantia de Amparo']
+    ];
+
+    for (var i = 0; i < Contratos.length; i++) {
+
+        var rowData = [
+            parseInt(i+1),
+            Contratos[i]['CONTRATO_NUMERO_VIVA'],
+            Contratos[i]['ESTADO_CONTRATO'],
+            Contratos[i]['Compania_Poliza'],
+            Contratos[i]['Numero_Poliza'],
+            Contratos[i]['TipoPoliza'],
+            Contratos[i]['TipoAmparo'],
+            Contratos[i]['Fecha_Inicio_Amparo'],
+            Contratos[i]['Fecha_Fin_Amparo'],
+            Contratos[i]['Cuantia_Amparo']
+        ];
+
+        sheetData.push(rowData);
+    }
+    var worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Resumen');
+    var workbookOutput = XLSX.write(workbook, { type: 'binary' });
+    var blob = new Blob([s2ab(workbookOutput)], { type: 'application/octet-stream' });
+    saveAs(blob, 'ResumenInformacionPolizayAmparoporContrato.xlsx');  
 }
 
 
@@ -1599,7 +3065,6 @@ function GuardarOtroSiContrato() {
             window.toastr.warning('Error al cargar las opciones');
         }
     });
-
 }
 
 function limpiarModalOtroSi(){

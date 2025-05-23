@@ -34,3 +34,8 @@ label{
 table td, table th{
   text-align: center;
 }
+
+#GridCuentaCobroSoporte td, #GridCuentaCobroSoporte th{
+  padding: 0px;
+  text-align: center;
+}

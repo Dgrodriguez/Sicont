@@ -73,12 +73,12 @@
             <div class="form-group row col-md-4">
                 <center> 
                     <div class="col-md-4">
-                        <button class="btn btn-success" id="btnModalHistoricoOtroSi" data-toggle="tooltip" data-placement="top" title="Historicos Otro SI" onclick="CargarHistoricoHonorarios()" disabled="true"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-success" id="btnModalHistoricoOtroSi" data-toggle="tooltip" data-placement="top" title="Historicos Honorario" onclick="CargarHistoricoHonorarios()" disabled="true"><i class="fa-solid fa-magnifying-glass"></i></button>
 
                         <button id="Btn_ModalHistoricoOtroSi" data-toggle="modal" data-target="#ModalHistoricoOtroSi" style="display:none;">x</button>
                     </div>
                     <div class="col-md-4">
-                        <button class="btn btn-success" id="btnModalNuevoOtroSi" data-bs-toggle="tooltip" data-toggle="tooltip" data-placement="top" onclick="CalcularSaldosEstimados()" title="Generar Otro SI" disabled="true"><i class="fa-solid fa-file-circle-plus"></i></button>
+                        <button class="btn btn-success" id="btnModalNuevoOtroSi" data-bs-toggle="tooltip" data-toggle="tooltip" data-placement="top" onclick="CalcularSaldosEstimados()" title="Generar Honorario" disabled="true"><i class="fa-solid fa-file-circle-plus"></i></button>
 
                         <button id="Btn_ModalAgregarOtroSi" style="display:none;" data-toggle="modal" data-target="#ModalAgregarOtroSi">x</button>
                     </div>

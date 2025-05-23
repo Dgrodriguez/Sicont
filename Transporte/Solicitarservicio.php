@@ -17,7 +17,7 @@
 
 
     <div class="form-group row col-md-4 offset-md-1" style="padding: 0;">
-      <label for="TranSolicitar_CantPasajeros" class="col-md-5"><span style="color: red">*</span> Cantidad Pasajeros</label>
+      <label for="TranSolicitar_CantPasajeros" class="col-md-5"><span style="color: red">*</span> Cantidad Pasajeros VIVA</label>
       <div class="col-md-6" style="display: flex; align-items: center;">
         <input type="text" class="form-control  form-control-plaintext" readonly  autocomplete="off" id="TranSolicitar_CantPasajeros" name="TranSolicitar_CantPasajeros" required>
         <button style="margin-left: 5px;" title="Agregar Servidor" data-toggle="tooltip" data-placement="top" onclick="$('#Btn_ModalCargaServidor').click()" class="btn_transparente"><i class="fa-solid fa-person-circle-plus"></i></button>
@@ -26,6 +26,14 @@
     </div>
 
 
+
+    <div class="form-group row col-md-4 offset-md-1" style="padding: 0;">
+      <label for="TranSolicitar_CantInvitados" class="col-md-5"> Cantidad Invitados</label>
+      <div class="col-md-6" style="display: flex; align-items: center;">
+        <input type="text" class="form-control  form-control-plaintext" readonly  autocomplete="off" id="TranSolicitar_CantInvitados" name="TranSolicitar_CantInvitados" required>
+        <button style="margin-left: 5px;" title="Agregar Servidor" data-toggle="tooltip" data-placement="top" onclick="$('#Btn_ModalCargarInvitados').click()" class="btn_transparente"><i class="fa-solid fa-person-circle-plus"></i></button>
+      </div>
+    </div>
 
 
 
@@ -69,6 +77,20 @@
           <input type="time" class="form-control" autocomplete="off" id="TranSolicitar_HoraSalida" name="TranSolicitar_HoraSalida" required>
       </div>
     </div>
+
+
+    <div class="form-group row col-md-3" style="padding:0px;">
+      <label for="TranSolicitar_Pernocta"  class="col-md-5"><span style="color:red">*</span> Pernocta?</label>
+      <div class="col-md-6">
+          <select class="form-control" name="TranSolicitar_Pernocta" id="TranSolicitar_Pernocta">
+          <option value="Ninguno">Seleccione</option>
+          <option value="SI">SI</option>
+          <option value="NO">NO</option>
+        </select>
+      </div>
+    </div>
+
+
   </div>
 
   <div class="row">
@@ -138,11 +160,15 @@
       <div class="col-md-6">
           <select class="form-control" name="TranSolicitar_TipoVehiculo" id="TranSolicitar_TipoVehiculo">
             <option value="Ninguno">Seleccione</option>
-            <option value="Automovil">Automovil</option>
-            <option value="Buseta">Buseta</option>
-            <option value="Camioneta 4x4">Camioneta 4x4</option>
-            <option value="Campero">Campero</option>
-            <option value="Vans">Vans</option>
+              <?php 
+              $con=conectar();
+              $sql = "SELECT Id,Nombre from Trans_tipo_vehiculo order by Nombre";
+              $query = mysqli_query($con,$sql);
+              mysqli_close($con);
+              while($dato=mysqli_fetch_array($query)){
+                echo "<option value='".$dato['Id']."'> ".$dato['Nombre']."</option>";
+              }
+              ?> 
           </select>
       </div>
     </div>
@@ -174,10 +200,79 @@
 </div>
 
 
+<button type="button" class="btn btn-primary" id="Btn_ModalCargarInvitados" style="display:none;" data-toggle="modal" data-target="#ModalCargarInvitados">x</button>
+<div class="modal fade" id="ModalCargarInvitados" tabindex="-1" role="dialog" aria-labelledby="ModalCargarInvitadosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="ModalCargarInvitadosLabel">Agregar Pasajero Invitado</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row" style="margin-left: 0px!important;">
+          
+          <div class="form-group col-md-3 " style="padding:0px;">
+            <label for="TranSolicitarInvitado_Servidor"  class="col-md-4" style="padding:0px;"><span style="color:red">*</span> Invitado</label>
+            <div class="col-md-8">
+                <input type="text" class="form-control" autocomplete="off" id="TranSolicitarInvitado_Servidor" name="TranSolicitarInvitado_Servidor" required>
+            </div>
+          </div>
+
+          <div class="form-group col-md-4 " style="padding:0px;">
+            <label for="TranSolicitarInvitado_ServidorIdentificacion"  class="col-md-5" style="padding:0px;"><span style="color:red">*</span> Identificación</label>
+            <div class="col-md-7">
+                <input type="number" class="form-control" autocomplete="off" id="TranSolicitarInvitado_ServidorIdentificacion" name="TranSolicitarInvitado_ServidorIdentificacion" required>
+            </div>
+          </div>
+
+          <div class="form-group col-md-3" style="padding:0px;">
+            <label for="TranSolicitarInvitado_Tlf"  class="col-md-4" style="padding:0px;"><span style="color:red">*</span> Telefono</label>
+            <div class="col-md-8">
+                <input type="number" class="form-control" autocomplete="off" id="TranSolicitarInvitado_Tlf" name="TranSolicitarInvitado_Tlf" required>
+            </div>
+          </div>
+
+          <div class="col-md-2 row" style="padding:0px;">
+            <div class="col-md-5">
+              <button title="Agregar Punto de Recogida" data-toggle="tooltip" data-placement="top" onclick="$('#Btn_segundoModal').click()" class="btn_transparente"><i class="fa-solid fa-map-location-dot"></i></button>
+              <button type="button" class="btn btn-success" id="Btn_segundoModal" style="display:none;" data-toggle="modal" data-target="#segundoModal"></button>
+            </div>
+            <div >
+              <button type="button" onclick="AgregarInvitadoServicio()" class="btn btn-success">Agregar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div  class="form-group col-md-12" style="padding: 0;">
+            <table id="TranSolicitarInvitado_ServidoresPasajeros" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Nombre</th>
+                  <th>Identificación</th>
+                  <th>Telefono</th>
+                  <th>Dirección de Recogida</th>
+                  <th>Proceso</th>
+                </tr>
+              </thead><tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <button type="button" class="btn btn-primary" id="Btn_ModalCargaServidor" style="display:none;" data-toggle="modal" data-target="#ModalCargaServidor">x</button>
-
-
-
 <div class="modal fade" id="ModalCargaServidor" tabindex="-1" role="dialog" aria-labelledby="ModalCargaServidorLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -239,10 +334,6 @@
             </table>
           </div>
         </div>
-
-
-
-
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -436,6 +527,7 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+
   $('[data-toggle="tooltip"]').tooltip();
 });
 

@@ -23,12 +23,6 @@ label{
 }
 
 
-#tbl_DetallePasajeros td, #tbl_DetallePasajeros th{
-  padding: 0px;
-  text-align: center;
-}
-
-
 .btn_transparente{
   background-color: transparent;
   border: none;
@@ -41,7 +35,9 @@ label{
   text-align:center;
 }
 
-#tbl_servicios_cargados td, #tbl_servicios_cargados th{
+#tbl_servicios_cargados td, #tbl_servicios_cargados th,#tbl_DetallePasajeros td, #tbl_DetallePasajeros th,#Tbl_Servicios_Asignar th, #Tbl_Servicios_Asignar td, #Tbl_Servicios_Parciales td, #Tbl_Servicios_Parciales th,#tbl_DetallePasajeros_Enlaces td,#tbl_DetallePasajeros_Enlaces th,#tbl_DetalleInvitados_Enlaces td,#tbl_DetalleInvitados_Enlaces th,#tbl_servicios_cargados_enlaces td, #tbl_servicios_cargados_enlaces th{
   padding: 0px;
   text-align: center;
+  vertical-align: middle;
 }
+

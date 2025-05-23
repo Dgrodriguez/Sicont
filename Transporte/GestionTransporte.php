@@ -5,7 +5,6 @@
 
 <br>
 
-
 	<div class="row" style="margin-bottom: 10px;margin-left: 0px!important;">
 	    <div class="form-group row col-md-3" style="padding:0px;">
 	      <label for="TranGestionar_MpioOrigen"  class="col-md-6 titulo_modal"> Municipio Destino<br>del Servicio</label>
@@ -13,17 +12,38 @@
 	        <select class="form-control" id="TranGestionar_MpioOrigen" onchange="FiltrarContratoBusqueda()" name="TranGestionar_MpioOrigen">
 	          <option value="Ninguno">Todos</option>
 	          <?php 
-	          $con=conectar();
-	          $sql = "SELECT a.nombre,a.id FROM cfg_municipios a WHERE a.departamento_id = 1 ORDER BY a.nombre";
-	          $query = mysqli_query($con,$sql);
-	          mysqli_close($con);
-	          while($dato=mysqli_fetch_array($query)){
-	            echo "<option value='".$dato['id']."'> ".$dato['nombre']."</option>";
-	          }
+  	          $con=conectar();
+  	          $sql = "SELECT a.nombre,a.id FROM cfg_municipios a WHERE a.departamento_id = 1 ORDER BY a.nombre";
+  	          $query = mysqli_query($con,$sql);
+  	          mysqli_close($con);
+  	          while($dato=mysqli_fetch_array($query)){
+  	            echo "<option value='".$dato['id']."'> ".$dato['nombre']."</option>";
+  	          }
 	          ?>
 	        </select>
 	      </div>
 	    </div>
+
+      <div class="form-group col-md-3"  style="padding:0px;">
+        <label for="AsignarVehiculo" class="col-md-4 titulo_modal">Vehiculo Asignado:</label>
+         <div class="col-md-8">
+          <select class="form-control" id="AsignarVehiculo" name="AsignarVehiculo">
+            <option value="Ninguno">Todos</option>
+            <?php 
+              $con=conectar();
+              $sql = "SELECT Conductor,Placas FROM Trans_Vehiculo WHERE ACTIVO = '1' ORDER BY Conductor";
+              $query = mysqli_query($con,$sql);
+              mysqli_close($con);
+              while($dato=mysqli_fetch_array($query)){
+                echo "<option value='".$dato['Placas']."'> ".$dato['Placas']." - ".$dato['Conductor']."</option>";
+              }
+            ?>
+          </select>
+        </div>
+      </div>
+
+
+<!-- 
 	    <div class="form-group row col-md-3" style="padding:0px;">
 	      <label for="TranGestionar_Contrato"  class="col-md-6 titulo_modal"> Contrato / Convenio</label>
 	      <div class="col-md-5">
@@ -31,21 +51,28 @@
 	          <option value="Ninguno">Todos</option>
 	        </select>
 	      </div>
-	    </div>
+	    </div> -->
+
+
+
 	    <div class="form-group row col-md-3" style="padding:0px;">
 	      <label for="TranGestionar_TipoVehiculo" class="col-md-3 titulo_modal"> Tipo Vehiculo</label>
 	      <div class="col-md-7">
 	          <select class="form-control" name="TranGestionar_TipoVehiculo" id="TranGestionar_TipoVehiculo">
 	            <option value="Ninguno">Todos</option>
-	            <option value="Automovil">Automovil</option>
-	            <option value="Buseta">Buseta</option>
-	            <option value="Camioneta 4x4">Camioneta 4x4</option>
-	            <option value="Campero">Campero</option>
-	            <option value="Vans">Vans</option>
+              <?php 
+                $con=conectar();
+                $sql = "SELECT Id,Nombre from Trans_tipo_vehiculo order by Nombre";
+                $query = mysqli_query($con,$sql);
+                mysqli_close($con);
+                while($dato=mysqli_fetch_array($query)){
+                  echo "<option value='".$dato['Id']."'> ".$dato['Nombre']."</option>";
+                }
+              ?> 
 	          </select>
 	      </div>
 	    </div>
-	    <div class="form-group row col-md-2" style="padding:0px;">
+	    <div class="form-group row col-md-2" id="Div_TranGestionar_Proceso" style="padding:0px;">
 	      <label for="TranGestionar_Proceso"  class="col-md-5 titulo_modal">Proceso</label>
 	      <div class="col-md-7">
 	        <select class="form-control" name="TranGestionar_Proceso" id="TranGestionar_Proceso">
@@ -65,7 +92,12 @@
 	    <div class="form-group col-md-1" style="padding:0px;">
 	    	<div class="col-md-1"></div>
 	    	<div class="col-md-11">
+          <?php if(isset($_SESSION['Perfiles']) && ( in_array('Transporte Solicitante', $_SESSION['Perfiles']) )){ ?>
+          <button class="btn btn-success" onclick="CargarServiciosEnlaces()">Filtrar</button>
+        <?php }else{ ?>
 	    		<button class="btn btn-success" onclick="CargarServicios()">Filtrar</button>
+        <?php } ?>
+        
 	    	</div>
 	    </div>
 	</div>
@@ -92,59 +124,294 @@
           <option value="Solicitado">Solicitado</option>
           <option value="Autorizado">Autorizado</option>
           <option value="Asignado">Asignado</option>
+          <option value="Terminado">Terminado</option>
+          <option value="Cancelado">Cancelado</option>
         </select>
       </div>
     </div>
-    <div class="col-md-3" style="padding:0px;">
+    <div class="form-group row col-md-3" style="padding:0px;">
+        <label for="TranGestionar_TipoContrato" class="col-md-3 titulo_modal"> Tipo Contrato</label>
+        <div class="col-md-7">
+            <select class="form-control" name="TranGestionar_TipoContrato" id="TranGestionar_TipoContrato">
+              <option value="Ninguno">Todos</option>
+              <?php 
+                $con=conectar();
+                $sql = "SELECT a.ID , a.TipoContrato FROM trans_tipo_contrato a where a.anio_contrato = YEAR(now())";
+                $query = mysqli_query($con,$sql);
+                mysqli_close($con);
+                while($dato=mysqli_fetch_array($query)){
+                  echo "<option value='".$dato['ID']."'> ".$dato['TipoContrato']."</option>";
+                }
+              ?> 
+            </select>
+        </div>
       <button class="btn_transparente" title="Descargar reporte en excel" data-toggle="tooltip" data-placement="top" onclick="GenerarExcelReporteGestion()"><i class="fa-regular fa-file-excel"></i></button>
     </div>
   </div>
 <br>
-<table class="table table-striped" id="tbl_servicios_cargados">
-	<thead>
-		<tr>
-			<th>#</th>
-			<th>Fecha Salida</th>
-			<th>Fecha Regreso</th>
-			<th>Municipio Destino</th>
-			<th>Tipo Servicio</th>
-			<th>Contrato/ Convenio</th>
-			<th>Proceso / Área</th>
-			<th>Estado</th>
-			<th>Tipo Vehiculo</th>
-			<th>Días</th>
-			<th>Persona</th>
-			<th>Acción</th>
-		</tr>
-	</thead>
-</table>
+<?php if(isset($_SESSION['Perfiles']) && ( in_array('Transporte Solicitante', $_SESSION['Perfiles']) )){ ?>
 
+<div id="Div_servicios_cargados_enlaces"> 
+  <table class="table table-striped" id="tbl_servicios_cargados_enlaces">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Fecha Salida</th>
+        <th>Fecha Regreso</th>
+        <th>Municipio Destino</th>
+        <th>Pernocta</th>
+        <th>Proceso / Área</th>
+        <th>Estado</th>
+        <th>Tipo Vehiculo</th>
+        <th>Conductor</th>
+        <th>Telefono Conductor</th>
+        <th>Placa</th>
+        <th>Pasajeros</th>
+        <th>Anular Viaje</th>
+      </tr>
+    </thead>
+  </table>
+</div>
+
+<?php }else{ ?>
+
+<div id="Div_servicios_cargados"> 
+  <table class="table table-striped" id="tbl_servicios_cargados">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Fecha Salida</th>
+        <th>Fecha Regreso</th>
+        <th>Municipio Destino</th>
+        <th>Pernocta</th>
+        <th>Tipo Servicio</th>
+        <th>Contrato/ Convenio</th>
+        <th>Proceso / Área</th>
+        <th>Estado</th>
+        <th>Tipo Vehiculo</th>
+        <th>Días</th>
+        <th>Usuario Solicitante</th>
+        <th>Personas</th>
+        <th>Editar</th>
+        <th>Anular Viaje</th>
+      </tr>
+    </thead>
+  </table>
+</div>
+
+
+<?php } ?>
 
 <input type="hidden" id="Id_Servicio">
+
+
+
+
+
+<button type="button" class="btn btn-primary" id="Btn_ModalDetalleCancelacionServicio" style="display:none;" data-toggle="modal" data-target="#ModaletalleCancelacionServicio_Enlaces">x</button>
+<div class="modal fade" id="ModaletalleCancelacionServicio_Enlaces" tabindex="-1" role="dialog" aria-labelledby="ModalDetalleCancelacionServicioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="ModalDetalleCancelacionServicioLabel">Confirmar Eliminación</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+          <div class="col-md-4" style="padding:0px;"> 
+            <div class="form-group" >
+              <label for="TranGestionar_MotivoCancelar" class="col-md-5 titulo_modal"><span style="color:red">*</span>  Motivo de Cancelación</label>
+              <div class="col-md-7">
+                  <select class="form-control" onchange="FiltrarObligatorio()" name="TranGestionar_MotivoCancelar" id="TranGestionar_MotivoCancelar">
+                    <option value="Ninguno">Seleccione</option>
+                    <?php 
+                      $con=conectar();
+                      $sql = "SELECT Id,Nombre from trans_tipo_cancelacion order by Nombre";
+                      $query = mysqli_query($con,$sql);
+                      mysqli_close($con);
+                      while($dato=mysqli_fetch_array($query)){
+                        echo "<option value='".$dato['Id']."'> ".$dato['Nombre']."</option>";
+                      }
+                    ?> 
+                  </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="form-group" style="padding:0px;">
+              <label for="TranGestionar_ObservacionCancelar" class="col-md-3 titulo_modal"><span style="color:red;display: none;" id="ObligatorioTranGestionar_ObservacionCancelar">*</span>  Observación de Cancelación</label>
+              <div class="col-md-9">
+                  <textarea class="form-control" id="TranGestionar_ObservacionCancelar" name="TranGestionar_ObservacionCancelar"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="ConfirmarEliminarServicioEnlace()">Confirmar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="Btn_CerrarModalEliminar">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<button type="button" class="btn btn-primary" id="Btn_ModalDetallePasajeros_Enlaces" style="display:none;" data-toggle="modal" data-target="#ModalDetallePasajeros_Enlaces">x</button>
+<div class="modal fade" id="ModalDetallePasajeros_Enlaces" tabindex="-1" role="dialog" aria-labelledby="ModalDetallePasajerosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title titulo_modal" id="ModalDetallePasajeros_EnlacesLabel">Revisar Pasajero</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <fieldset><legend class="titulo_modal">Pasajeros VIVA</legend>
+          <table class="table table-striped" id="tbl_DetallePasajeros_Enlaces">
+            <thead>          
+              <th>Pasajero</th>
+              <th>Teléfono</th>
+              <th>Punto Recogida</th>
+            </thead><tbody></tbody>
+          </table>
+        </fieldset>
+
+      <fieldset><legend class="titulo_modal">Pasajero Invitados</legend>
+        <table class="table table-striped" id="tbl_DetalleInvitados_Enlaces">
+          <thead>          
+            <th>Pasajero</th>
+            <th>Teléfono</th>
+            <th>Punto Recogida</th>
+          </thead><tbody></tbody>
+        </table>
+      </fieldset>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 
 <button type="button" class="btn btn-primary" id="Btn_ModalDetallePasajeros" style="display:none;" data-toggle="modal" data-target="#ModalDetallePasajeros">x</button>
 <div class="modal fade" id="ModalDetallePasajeros" tabindex="-1" role="dialog" aria-labelledby="ModalDetallePasajerosLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title titulo_modal" id="ModalDetallePasajerosLabel">Agregar Pasajero</h5>
+        <h5 class="modal-title titulo_modal" id="ModalDetallePasajerosLabel">Editar Servicio</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-      	<br><br>
-        <table class="table table-striped" id="tbl_DetallePasajeros">
-          <thead>          
-            <th>Pasajero</th>
-            <th>Teléfono</th>
-            <th>Punto Recogida</th>
-            <th>Eliminar Pasajero</th>
-          </thead><tbody></tbody>
-        </table>
+      	<br>
+        <fieldset><legend class="titulo_modal">Editar Destino del viaje</legend>
+
+          <div class="row" style="padding-left:10px;">
+
+            <div class="form-group col-md-4" id="Div_TranSolicitar_AsignarVehiculo" style="padding:0px;display: none;">
+              <label for="TranSolicitar_AsignarVehiculo" class="col-md-4 titulo_modal">Vehiculo Asignado:</label>
+               <div class="col-md-8">
+                <select class="form-control" id="TranSolicitar_AsignarVehiculo" name="TranSolicitar_AsignarVehiculo">
+                  <option value="Ninguno">Seleccione</option>
+                  <?php 
+                    $con=conectar();
+                    $sql = "SELECT Conductor,Placas,a.Id, Telefono ,b.Id Tipo FROM Trans_Vehiculo a inner join trans_tipo_vehiculo b on a.Tipo = b.Id WHERE a.ACTIVO = '1' ORDER BY Conductor";
+                    $query = mysqli_query($con,$sql);
+                    mysqli_close($con);
+                    while($dato=mysqli_fetch_array($query)){
+                      echo "<option NombreConductor='".$dato['Conductor']."' TelefonoConductor='".$dato['Telefono']."' TipoVehiculo='".$dato['Tipo']."' placaVehiculo='".$dato['Placas']."'  value='".$dato['Placas']."'> ".$dato['Placas']." - ".$dato['Conductor']."</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+            </div>
+
+
+
+            <div class="form-group col-md-4" id="Div_TranSolicitar_TipoVehiculo" style="padding:0px;display: none;">
+              <label for="TranSolicitar_TipoVehiculo" class="col-md-4 titulo_modal">Tipo Vehiculo Solicitado:</label>
+               <div class="col-md-8">
+                <select class="form-control" id="TranSolicitar_TipoVehiculo" name="TranSolicitar_TipoVehiculo">
+                  <option value="Ninguno">Seleccione</option>
+                  <?php 
+                    $con=conectar();
+                    $sql = "SELECT a.Nombre,a.Id FROM trans_tipo_vehiculo a WHERE a.ACTIVO = '1' ORDER BY a.Nombre";
+                    $query = mysqli_query($con,$sql);
+                    mysqli_close($con);
+                    while($dato=mysqli_fetch_array($query)){
+                      echo "<option value='".$dato['Id']."'> ".$dato['Nombre']."</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+            </div>
+
+
+
+
+            <div class="form-group row col-md-4" style="padding:0px;">
+              <label for="TranSolicitar_MpioDestino"  class="col-md-5"><span style="color:red">*</span> Municipio Destino<br>del Servicio</label>
+              <div class="col-md-6">
+                <select class="form-control" name="TranSolicitar_MpioDestino" id="TranSolicitar_MpioDestino">
+                  <option value="Ninguno">Seleccione</option>
+                  <?php 
+                  $con=conectar();
+                  $sql = "SELECT a.nombre,a.id FROM cfg_municipios a WHERE a.departamento_id = 1 ORDER BY a.nombre";
+                  $query = mysqli_query($con,$sql);
+                  mysqli_close($con);
+                  while($dato=mysqli_fetch_array($query)){
+                    echo "<option value='".$dato['id']."'> ".$dato['nombre']."</option>";
+                  }
+                  ?>
+                </select>
+              </div>
+            </div>
+
+
+            <div class="form-group row col-md-4" style="padding:0px;">
+              <label for="TranSolicitar_DestinoObserv"  class="col-md-5">Otros Destinos</label>
+              <div class="col-md-6">
+                  <input type="text" class="form-control" autocomplete="off" id="TranSolicitar_DestinoObserv" name="TranSolicitar_DestinoObserv" required>
+              </div>
+            </div>
+            <div class="col-md-1"> <button class="btn btn-success" onclick="AplicarCambiosServicio()"> Aplicar Cambios </button></div>
+
+          </div>
+
+        </fieldset>
+        <br>
+        <fieldset><legend class="titulo_modal">Editar Pasajeros</legend>
+          <table class="table table-striped" id="tbl_DetallePasajeros">
+            <thead>          
+              <th>Pasajero</th>
+              <th>Teléfono</th>
+              <th>Punto Recogida</th>
+              <th>Eliminar Pasajero</th>
+            </thead><tbody></tbody>
+          </table>
+          <br>
+          <div class="row">
+            <div class="col-md-4 "><button type="button" class="btn btn-success" data-toggle="modal" data-target="#segundoModal">Agregar Pasajeros</button></div>
+          </div>
+          
+        </fieldset>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#segundoModal">Agregar Pasajero</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
@@ -359,7 +626,7 @@
 </div>
 
 
-
+<input type="hidden" id="TranGestionar_UsuarioActivo" value="<?php echo $_SESSION['Usuario']; ?>">
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -377,7 +644,55 @@ $(document).ready(function() {
     }
   });
 
+  $('#tbl_servicios_cargados_enlaces').DataTable({
+    "language": {
+      "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+    },
+    "pageLength": 50,
+    "lengthChange": false,
+    "searching": false,
+    "dom": '<"datatable-header"l>rtip',
+    "drawCallback": function(settings) {
+      $('div.dataTables_length').hide();
+    }
+  });
+
+
+  $('#tbl_DetalleInvitados_Enlaces').DataTable({
+    "language": {
+      "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+    },
+    "pageLength": 50,
+    "lengthChange": false,
+    "searching": false,
+    "dom": '<"datatable-header"l>rtip',
+    "drawCallback": function(settings) {
+      $('div.dataTables_length').hide();
+    }
+  });
+
+
+
+    $('#tbl_DetallePasajeros_Enlaces').DataTable({
+    "language": {
+      "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json"
+    },
+    "pageLength": 50,
+    "lengthChange": false,
+    "searching": false,
+    "dom": '<"datatable-header"l>rtip',
+    "drawCallback": function(settings) {
+      $('div.dataTables_length').hide();
+    }
+  });
+
   $('[data-toggle="tooltip"]').tooltip();
+
+
+  <?php  if(isset($_SESSION['Perfiles']) && ( in_array('Transporte Solicitante', $_SESSION['Perfiles']) )){ ?>
+    FiltrarOpcionesSolicitante();
+  <?php  }  ?>
+
 });
 
 
