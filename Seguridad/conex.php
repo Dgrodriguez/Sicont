@@ -1,11 +1,11 @@
 <?php
 
 function conectar() {
-    $servername = "localhost"; // El nombre del servidor de la base de datos
-    $username = "root"; // Tu nombre de usuario de MySQL
-    $password = "1704"; // Tu contraseña de MySQL
-    $dbname = "sicont"; // El nombre de la base de datos a la que te quieres conectar
-    $port = 3307; // Especifica el puerto (3306 es el predeterminado para MySQL)
+    $servername = [Tu_Servidor_DB]; // El nombre del servidor de la base de datos
+    $username = [Tu_USuario_DD]; // Tu nombre de usuario de MySQL
+    $password = [Clave_DB]; // Tu contraseña de MySQL
+    $dbname = [Nombre_DB]; // El nombre de la base de datos a la que te quieres conectar
+    $port = [Puerto_DB]; // Especifica el puerto (3306 es el predeterminado para MySQL)
 
     // Crear conexión
     $conn = new mysqli($servername, $username, $password, $dbname, $port);
